@@ -9,6 +9,7 @@ import random
 import string
 import time
 import math
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from dataclasses import dataclass, asdict
@@ -22,11 +23,11 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 class Config:
-    RAW_CHUNK_SIZE = 4 * 1024 * 1024
-    ENCODED_CHUNK_SIZE = 5 * 1024 * 1024
+    RAW_CHUNK_SIZE = 4 * 1024 * 1024  # 4MB per chunk asli
+    ENCODED_CHUNK_SIZE = 5 * 1024 * 1024  # ~5MB setelah encoding
     TOTAL_REPOS = 100
     ACTIVE_REPOS = 15
-    REPO_MAX_SIZE = 1 * 1024 * 1024 * 1024
+    REPO_MAX_SIZE = 1 * 1024 * 1024 * 1024  # 1 GB per repo
     REPO_WARNING_SIZE = int(REPO_MAX_SIZE * 0.8)
     BATCH_SIZE = 5
     MIN_BATCH_UTILIZATION = 0.3
@@ -81,7 +82,7 @@ class RepoInfo:
     description: str
     created_at: str
     chunk_count: int
-    total_size: int
+    total_size: int  # Real size on disk
     last_accessed: str
     batch_id: int
     is_active: bool
@@ -101,7 +102,7 @@ class BatchInfo:
 @dataclass  
 class SystemState:
     total_files: int
-    total_size: int
+    total_size: int  # Original total size of all files
     total_chunks: int
     active_batch_ids: List[int]
     batch_rotation_schedule: Dict[str, str]
@@ -148,7 +149,7 @@ class StealthUtility:
         
         prefix_options = prefixes.get(repo_type, ["data"])
         prefix = random.choice(prefix_options)
-        suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         
         if repo_type == "computer-vision-dataset":
             new_ext = random.choice([".png", ".jpg", ".jpeg", ".bmp"])
@@ -331,10 +332,20 @@ class RepoManager:
         self._start_background_worker()
     
     def _init_directories(self):
+        """Initialize all directories and ensure they're writable"""
         for dir_path in [self.repos_root, self.metadata_root, 
                         self.temp_dir, self.logs_dir]:
-            dir_path.mkdir(exist_ok=True)
+            dir_path.mkdir(exist_ok=True, parents=True)
+            # Test write permission
+            test_file = dir_path / ".write_test"
+            try:
+                test_file.write_text("test")
+                test_file.unlink()
+                print(f"✓ Directory writable: {dir_path}")
+            except Exception as e:
+                print(f"✗ Directory NOT writable: {dir_path} - {e}")
         
+        # Create repository structure
         for i in range(Config.TOTAL_REPOS):
             repo_id = f"repo_{i:03d}"
             repo_path = self.repos_root / repo_id
@@ -383,6 +394,7 @@ CC BY-SA 4.0
 *.dat
 *.tmp
 __pycache__/
+*.pyc
 *.log
 .DS_Store
 """
@@ -393,9 +405,12 @@ __pycache__/
             "computer-vision-dataset": """
 import cv2
 import numpy as np
+from pathlib import Path
+
 class DatasetLoader:
     def __init__(self, data_dir: str):
         self.data_dir = Path(data_dir)
+    
     def load_image(self, image_path: str):
         img = cv2.imread(str(image_path))
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -403,9 +418,11 @@ class DatasetLoader:
             "audio-processing-samples": """
 import librosa
 import numpy as np
+
 class AudioLoader:
     def __init__(self, sample_rate=22050):
         self.sample_rate = sample_rate
+    
     def load_audio(self, file_path: str):
         audio, sr = librosa.load(file_path, sr=self.sample_rate)
         return audio
@@ -413,9 +430,12 @@ class AudioLoader:
             "ml-model-weights": """
 import torch
 import tensorflow as tf
+from pathlib import Path
+
 class ModelLoader:
     def __init__(self, model_dir: str):
         self.model_dir = Path(model_dir)
+    
     def load_pytorch_model(self, model_path: str):
         return torch.load(model_path, map_location='cpu')
             """
@@ -425,9 +445,11 @@ class ModelLoader:
     def _generate_preprocess_script(self) -> str:
         return """
 import numpy as np
+
 class Preprocessor:
     def __init__(self):
         pass
+    
     def preprocess_image(self, image):
         return image / 255.0
 """
@@ -435,9 +457,12 @@ class Preprocessor:
     def _generate_utils_script(self) -> str:
         return """
 import json
+from pathlib import Path
+
 def save_metadata(metadata, path: str):
     with open(path, 'w') as f:
         json.dump(metadata, f, indent=2)
+
 def load_metadata(path: str):
     with open(path, 'r') as f:
         return json.load(f)
@@ -486,6 +511,9 @@ dataset:
                     batch_info = BatchInfo(**batch_data)
                     self.batch_manager.batches[int(batch_id)] = batch_info
             
+            # Recalculate real sizes from disk
+            self._recalculate_real_sizes()
+            
         else:
             self.system_state = SystemState(
                 total_files=0,
@@ -517,7 +545,7 @@ dataset:
                     description=f"Dataset untuk {repo_type.replace('-', ' ')}",
                     created_at=datetime.now().isoformat(),
                     chunk_count=0,
-                    total_size=0,
+                    total_size=0,  # Will be calculated from disk
                     last_accessed=datetime.now().isoformat(),
                     batch_id=batch_id,
                     is_active=(batch_id in self.batch_manager.active_batches),
@@ -526,6 +554,15 @@ dataset:
                 )
             
             self._save_metadata()
+    
+    def _recalculate_real_sizes(self):
+        """Recalculate real file sizes from disk"""
+        for repo_id, repo_info in self.repos_info.items():
+            repo_path = self.repos_root / repo_id
+            if repo_path.exists():
+                actual_size = self._calculate_folder_size(repo_path)
+                repo_info.total_size = actual_size
+                repo_info.utilization = repo_info.total_size / Config.REPO_MAX_SIZE
     
     def _save_metadata(self):
         metadata_file = self.metadata_root / "system_state.json"
@@ -680,14 +717,33 @@ dataset:
             self._log_error(f"Cleanup failed: {str(e)}")
     
     def _update_system_stats(self):
+        """Update system stats with real data from disk"""
         try:
-            total_used = sum(repo.total_size for repo in self.repos_info.values())
-            total_chunks = sum(repo.chunk_count for repo in self.repos_info.values())
+            total_used = 0
+            total_chunks = 0
+            
+            for repo_id, repo_info in self.repos_info.items():
+                repo_path = self.repos_root / repo_id
+                if repo_path.exists():
+                    actual_size = self._calculate_folder_size(repo_path)
+                    repo_info.total_size = actual_size
+                    total_used += actual_size
+                
+                total_chunks += repo_info.chunk_count
             
             self.system_state.total_chunks = total_chunks
             self.system_state.storage_stats["used"] = total_used
             self.system_state.storage_stats["available"] = \
                 (Config.TOTAL_REPOS * Config.REPO_MAX_SIZE) - total_used
+            
+            # Update batch stats from real repo sizes
+            for batch_id, batch in self.batch_manager.batches.items():
+                batch_total = 0
+                for repo_id in batch.repo_ids:
+                    if repo_id in self.repos_info:
+                        batch_total += self.repos_info[repo_id].total_size
+                batch.total_size = batch_total
+                batch.utilization = batch_total / Config.REPO_MAX_SIZE
             
             self._save_metadata()
             
@@ -698,7 +754,10 @@ dataset:
         total_size = 0
         for file_path in folder_path.rglob("*"):
             if file_path.is_file():
-                total_size += file_path.stat().st_size
+                try:
+                    total_size += file_path.stat().st_size
+                except:
+                    pass
         return total_size
     
     def _log_info(self, message: str):
@@ -759,25 +818,27 @@ dataset:
     
     def store_chunk(self, chunk_data: bytes, original_filename: str, 
                    batch_id: int = None) -> ChunkInfo:
-        encoding_type = random.choice(Config.ENCODING_TYPES)
-        encoded_data = StealthUtility.encode_data(chunk_data, encoding_type)
-        encoded_size = len(encoded_data)
-        
-        repo_id, folder_path, actual_batch_id = self.get_optimal_repo_for_chunk(
-            encoded_size, batch_id
-        )
-        
-        repo = self.repos_info[repo_id]
-        credible_name = StealthUtility.generate_credible_filename(
-            original_filename, repo.repo_type
-        )
-        final_name = f"{credible_name}.b85"
-        
-        repo_path = self.repos_root / repo_id / folder_path
-        repo_path.mkdir(exist_ok=True, parents=True)
-        file_path = repo_path / final_name
-        
-        header = f"""# Dataset Sample File
+        """Store chunk to physical disk"""
+        try:
+            encoding_type = random.choice(Config.ENCODING_TYPES)
+            encoded_data = StealthUtility.encode_data(chunk_data, encoding_type)
+            encoded_size = len(encoded_data.encode('utf-8'))  # Size in bytes
+            
+            repo_id, folder_path, actual_batch_id = self.get_optimal_repo_for_chunk(
+                encoded_size, batch_id
+            )
+            
+            repo = self.repos_info[repo_id]
+            credible_name = StealthUtility.generate_credible_filename(
+                original_filename, repo.repo_type
+            )
+            final_name = f"{credible_name}.b85"
+            
+            repo_path = self.repos_root / repo_id / folder_path
+            repo_path.mkdir(exist_ok=True, parents=True)
+            file_path = repo_path / final_name
+            
+            header = f"""# Dataset Sample File
 # Repo: {repo_id}
 # Batch: {actual_batch_id}
 # Generated: {datetime.now().isoformat()}
@@ -786,59 +847,116 @@ dataset:
 # Hash: {hashlib.sha256(chunk_data).hexdigest()[:16]}
 
 """
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(header + encoded_data)
-        
-        repo.chunk_count += 1
-        repo.total_size += encoded_size
-        repo.last_accessed = datetime.now().isoformat()
-        repo.utilization = repo.total_size / Config.REPO_MAX_SIZE
-        
-        self.batch_manager.update_batch_stats(actual_batch_id, encoded_size)
-        
-        chunk_info = ChunkInfo(
-            chunk_id=hashlib.sha256(chunk_data).hexdigest()[:16],
-            repo_id=repo_id,
-            file_path=str(file_path.relative_to(self.repos_root)),
-            encoded_size=encoded_size,
-            index=0,
-            encoding_type=encoding_type,
-            hash=hashlib.sha256(chunk_data).hexdigest()[:16],
-            created_at=datetime.now().isoformat(),
-            batch_id=actual_batch_id
-        )
-        
-        return chunk_info
+            
+            # Write to physical file
+            full_content = header + encoded_data
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(full_content)
+            
+            # Verify file was written
+            if not file_path.exists():
+                raise Exception(f"Failed to create chunk file: {file_path}")
+            
+            # Get actual file size
+            actual_file_size = file_path.stat().st_size
+            
+            # Update repo info
+            repo.chunk_count += 1
+            repo.total_size += actual_file_size
+            repo.last_accessed = datetime.now().isoformat()
+            repo.utilization = repo.total_size / Config.REPO_MAX_SIZE
+            
+            # Update batch stats
+            self.batch_manager.update_batch_stats(actual_batch_id, actual_file_size)
+            
+            chunk_info = ChunkInfo(
+                chunk_id=hashlib.sha256(chunk_data).hexdigest()[:16],
+                repo_id=repo_id,
+                file_path=str(file_path.relative_to(self.repos_root)),
+                encoded_size=actual_file_size,
+                index=0,  # Will be updated by caller
+                encoding_type=encoding_type,
+                hash=hashlib.sha256(chunk_data).hexdigest()[:16],
+                created_at=datetime.now().isoformat(),
+                batch_id=actual_batch_id
+            )
+            
+            self._log_info(f"Chunk stored: {file_path} ({actual_file_size} bytes)")
+            return chunk_info
+            
+        except Exception as e:
+            self._log_error(f"Failed to store chunk: {str(e)}")
+            raise
     
     def retrieve_chunk(self, chunk_info: ChunkInfo) -> bytes:
+        """Retrieve chunk from physical disk"""
         file_path = self.repos_root / chunk_info.file_path
         
         if not file_path.exists():
-            raise FileNotFoundError(f"Chunk not found: {chunk_info.chunk_id}")
+            raise FileNotFoundError(f"Chunk not found: {chunk_info.chunk_id} at {file_path}")
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        lines = content.split('\n')
-        data_start = 0
-        for i, line in enumerate(lines):
-            if line.strip() and not line.startswith('#'):
-                data_start = i
-                break
-        
-        encoded_data = '\n'.join(lines[data_start:])
-        decoded_data = StealthUtility.decode_data(encoded_data, chunk_info.encoding_type)
-        
-        repo_id = chunk_info.repo_id
-        self.repos_info[repo_id].last_accessed = datetime.now().isoformat()
-        
-        return decoded_data
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Extract data from header
+            lines = content.split('\n')
+            data_start = 0
+            for i, line in enumerate(lines):
+                if line.strip() and not line.startswith('#'):
+                    data_start = i
+                    break
+            
+            encoded_data = '\n'.join(lines[data_start:])
+            decoded_data = StealthUtility.decode_data(encoded_data, chunk_info.encoding_type)
+            
+            # Update last accessed
+            repo_id = chunk_info.repo_id
+            self.repos_info[repo_id].last_accessed = datetime.now().isoformat()
+            
+            return decoded_data
+            
+        except Exception as e:
+            self._log_error(f"Failed to retrieve chunk {chunk_info.chunk_id}: {str(e)}")
+            raise
     
     def delete_chunk(self, chunk_info: ChunkInfo):
+        """Delete chunk from physical disk"""
         file_path = self.repos_root / chunk_info.file_path
         
         if file_path.exists():
+            try:
+                # Get actual file size before deletion
+                actual_size = file_path.stat().st_size
+                
+                # Delete file
+                file_path.unlink()
+                
+                # Update repo info
+                repo_id = chunk_info.repo_id
+                repo = self.repos_info[repo_id]
+                repo.chunk_count -= 1
+                repo.total_size -= actual_size
+                repo.utilization = repo.total_size / Config.REPO_MAX_SIZE
+                
+                # Update batch stats
+                batch_id = chunk_info.batch_id
+                self.batch_manager.update_batch_stats(batch_id, -actual_size)
+                
+                # Try to remove empty directories
+                try:
+                    if file_path.parent.is_dir() and not any(file_path.parent.iterdir()):
+                        file_path.parent.rmdir()
+                except OSError:
+                    pass
+                
+                self._log_info(f"Chunk deleted: {file_path}")
+                
+            except Exception as e:
+                self._log_error(f"Failed to delete chunk {chunk_info.chunk_id}: {str(e)}")
+                raise
+        else:
+            # File doesn't exist, but still update metadata
             repo_id = chunk_info.repo_id
             repo = self.repos_info[repo_id]
             repo.chunk_count -= 1
@@ -847,19 +965,15 @@ dataset:
             
             batch_id = chunk_info.batch_id
             self.batch_manager.update_batch_stats(batch_id, -chunk_info.encoded_size)
-            
-            file_path.unlink()
-            
-            try:
-                if file_path.parent.is_dir() and not any(file_path.parent.iterdir()):
-                    file_path.parent.rmdir()
-            except OSError:
-                pass
     
     def get_system_stats(self) -> Dict:
+        """Get system statistics with real data"""
+        # Recalculate from disk to ensure accuracy
+        self._update_system_stats()
+        
         total_files = self.system_state.total_files
         total_size = self.system_state.total_size
-        total_storage = sum(repo.total_size for repo in self.repos_info.values())
+        total_storage = self.system_state.storage_stats["used"]
         
         batch_stats = {}
         for batch_id, batch in self.batch_manager.batches.items():
@@ -886,12 +1000,12 @@ dataset:
             "storage": {
                 "used": total_storage,
                 "capacity": Config.TOTAL_REPOS * Config.REPO_MAX_SIZE,
-                "available": (Config.TOTAL_REPOS * Config.REPO_MAX_SIZE) - total_storage,
-                "utilization_percent": (total_storage / (Config.TOTAL_REPOS * Config.REPO_MAX_SIZE)) * 100
+                "available": self.system_state.storage_stats["available"],
+                "utilization_percent": self.system_state.storage_stats["used"] / (Config.TOTAL_REPOS * Config.REPO_MAX_SIZE) * 100
             },
             "chunks": {
                 "total": self.system_state.total_chunks,
-                "avg_size": total_storage / max(self.system_state.total_chunks, 1)
+                "avg_size": total_storage / max(self.system_state.total_chunks, 1) if self.system_state.total_chunks > 0 else 0
             },
             "repos": {
                 "total": len(self.repos_info),
@@ -1010,8 +1124,12 @@ def upload_file():
                 batch_distribution[chunk_info.batch_id] += 1
                 
             except Exception as e:
+                # Rollback: delete already stored chunks
                 for chunk in chunks:
-                    repo_manager.delete_chunk(chunk)
+                    try:
+                        repo_manager.delete_chunk(chunk)
+                    except:
+                        pass
                 return jsonify({
                     "error": f"Failed to store chunk {i+1}/{num_chunks}: {str(e)}"
                 }), 500
@@ -1037,6 +1155,7 @@ def upload_file():
         repo_manager.system_state.total_chunks += len(chunks)
         
         repo_manager._save_metadata()
+        repo_manager._update_system_stats()
         
         return jsonify({
             "success": True,
@@ -1175,6 +1294,66 @@ def get_file_info(file_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/file/<file_id>/preview', methods=['GET'])
+def preview_file(file_id):
+    try:
+        if file_id not in repo_manager.files_metadata:
+            return jsonify({"error": "File not found"}), 404
+        
+        file_meta = repo_manager.files_metadata[file_id]
+        mime_type = file_meta.mime_type
+        
+        # Check if file is small enough for preview (< 10MB)
+        if file_meta.original_size > 10 * 1024 * 1024:
+            return jsonify({
+                "error": "File too large for preview",
+                "size": file_meta.original_size,
+                "limit": 10 * 1024 * 1024
+            }), 400
+        
+        # Check supported preview types
+        supported_types = [
+            'image/', 'text/', 'application/pdf',
+            'application/json', 'application/xml'
+        ]
+        
+        if not any(mime_type.startswith(t) for t in supported_types):
+            return jsonify({
+                "error": "Preview not supported for this file type",
+                "mime_type": mime_type
+            }), 400
+        
+        # Download and assemble file
+        chunks = sorted(file_meta.chunks, key=lambda x: x.index)
+        assembled_data = bytearray()
+        
+        for chunk_info in chunks:
+            chunk_data = repo_manager.retrieve_chunk(chunk_info)
+            assembled_data.extend(chunk_data)
+        
+        # Encode to base64 for preview
+        b64_data = base64.b64encode(bytes(assembled_data)).decode('ascii')
+        
+        # If text file, also provide decoded text
+        text_content = None
+        if mime_type.startswith('text/'):
+            try:
+                text_content = assembled_data.decode('utf-8', errors='ignore')
+            except:
+                pass
+        
+        return jsonify({
+            "filename": file_meta.original_name,
+            "mime_type": mime_type,
+            "size": len(assembled_data),
+            "data": b64_data,
+            "text": text_content,
+            "encoding": "base64"
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/file/<file_id>', methods=['DELETE'])
 def delete_file(file_id):
     try:
@@ -1182,20 +1361,32 @@ def delete_file(file_id):
             return jsonify({"error": "File not found"}), 404
         
         file_meta = repo_manager.files_metadata[file_id]
+        
+        # Soft delete first
         file_meta.is_hidden = True
         repo_manager._save_metadata()
         
+        # Schedule hard delete in background
         def perform_hard_delete():
-            time.sleep(300)
-            for chunk_info in file_meta.chunks:
-                repo_manager.delete_chunk(chunk_info)
+            time.sleep(300)  # 5 minutes delay
             
+            # Delete all chunks
+            for chunk_info in file_meta.chunks:
+                try:
+                    repo_manager.delete_chunk(chunk_info)
+                except Exception as e:
+                    repo_manager._log_error(f"Failed to delete chunk {chunk_info.chunk_id}: {str(e)}")
+            
+            # Update system state
             repo_manager.system_state.total_files -= 1
             repo_manager.system_state.total_size -= file_meta.original_size
             repo_manager.system_state.total_chunks -= file_meta.chunk_count
             
+            # Remove from metadata
             del repo_manager.files_metadata[file_id]
             repo_manager._save_metadata()
+            repo_manager._update_system_stats()
+            
             repo_manager._log_info(f"Hard deleted file: {file_id}")
         
         thread = threading.Thread(target=perform_hard_delete, daemon=True)
@@ -1335,10 +1526,27 @@ def system_maintenance():
             repo_manager._cleanup_temp_files()
             return jsonify({"success": True, "action": "cleanup"})
         
+        elif action == 'verify_storage':
+            # Verify storage integrity
+            total_chunks = sum(repo.chunk_count for repo in repo_manager.repos_info.values())
+            total_storage = repo_manager._calculate_total_storage()
+            
+            # Count actual .b85 files
+            b85_files = list(repo_manager.repos_root.rglob("*.b85"))
+            
+            return jsonify({
+                "success": True,
+                "action": "verify_storage",
+                "metadata_chunks": total_chunks,
+                "actual_files": len(b85_files),
+                "total_storage": total_storage,
+                "mismatch": total_chunks != len(b85_files)
+            })
+        
         else:
             return jsonify({
                 "error": "Unknown action",
-                "available_actions": ["recalculate_health", "update_stats", "cleanup"]
+                "available_actions": ["recalculate_health", "update_stats", "cleanup", "verify_storage"]
             }), 400
     
     except Exception as e:
@@ -1412,23 +1620,35 @@ def internal_error(error):
 
 if __name__ == '__main__':
     print("=" * 80)
-    print("GITHUB DRIVE SIMULATOR v2.5 - BATCH ROTATION SYSTEM")
+    print("GITHUB DRIVE SIMULATOR v2.5 - REAL STORAGE SYSTEM")
     print("=" * 80)
     print(f"Base Directory: {Config.BASE_DIR}")
+    print(f"Repositories: {Config.REPOS_ROOT}")
     print(f"Total Repos: {Config.TOTAL_REPOS}")
     print(f"Batch Size: {Config.BATCH_SIZE} repos per batch")
     print(f"Repo Max Size: {Config.REPO_MAX_SIZE / (1024**3):.1f} GB")
+    print(f"Total Capacity: {Config.TOTAL_REPOS * Config.REPO_MAX_SIZE / (1024**3):.1f} GB")
     print(f"Active Batches: {repo_manager.system_state.active_batch_ids}")
+    
+    # Verify storage
+    total_b85_files = list(Config.REPOS_ROOT.rglob("*.b85"))
+    print(f"Found {len(total_b85_files)} existing chunk files")
+    
     print("\n" + "=" * 80)
     print("API Endpoints:")
     print("  GET  /api/health             - Health check")
     print("  POST /api/upload             - Upload file")
     print("  GET  /api/files              - List files")
     print("  GET  /api/file/<id>          - Download file")
+    print("  GET  /api/file/<id>/info     - File info")
+    print("  GET  /api/file/<id>/preview  - Preview file")
+    print("  DELETE /api/file/<id>        - Delete file")
     print("  GET  /api/stats              - System statistics")
     print("  GET  /api/batches            - List batches")
     print("  POST /api/system/rotate      - Rotate batches")
+    print("  POST /api/system/maintenance - Maintenance operations")
     print("  GET  /api/search             - Search files")
     print("=" * 80)
     
+    # Run server
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
