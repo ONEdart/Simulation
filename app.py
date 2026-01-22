@@ -8,7 +8,7 @@ import mimetypes
 import random
 import string
 import time
-import math
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from dataclasses import dataclass, asdict
@@ -147,9 +147,7 @@ def load_data_fragment():
     """
     Returns encoded data fragment for processing
     """
-    encoded = """
-{encoded_data}
-    """
+    encoded = "{encoded_data}"
     return encoded.strip()
 
 def process_fragment():
@@ -164,7 +162,7 @@ if __name__ == "__main__":
 // Fragment: {fragment_id}
 // Index: {chunk_index}
 
-const dataFragment = `{encoded_data}`;
+const dataFragment = "{encoded_data}";
 
 module.exports = {{
     getFragment: function() {{
@@ -185,7 +183,7 @@ interface DataFragment {{
 
 export const fragment: DataFragment = {{
     id: "{fragment_id}",
-    content: `{encoded_data}`,
+    content: "{encoded_data}",
     timestamp: "{timestamp}"
 }};
 '''
@@ -201,9 +199,7 @@ import base64
 
 class DataFragment:
     def __init__(self):
-        self.encoded_data = """
-{encoded_data}
-        """
+        self.encoded_data = "{encoded_data}"
     
     def get_encoded(self):
         return self.encoded_data.strip()
@@ -252,8 +248,7 @@ fragment_id: {fragment_id}
 index: {chunk_index}
 timestamp: {timestamp}
 data_format: base85
-content: |
-{chr(10).join('  ' + line for line in encoded_data.split(chr(10)))}
+content: "{encoded_data}"
 ---
 '''
             ]
@@ -275,39 +270,36 @@ def get_fragment():
 
     @staticmethod
     def extract_encoded_from_code(code_content: str) -> str:
-        lines = code_content.split('\n')
-        encoded_data = []
+        patterns = [
+            r'ENCODED_DATA\s*=\s*["\']([^"\']*)["\']',
+            r'encoded_data\s*=\s*["\']([^"\']*)["\']',
+            r'dataFragment\s*=\s*["\']([^"\']*)["\']',
+            r'fragment\s*:\s*["\']([^"\']*)["\']',
+            r'"data"\s*:\s*["\']([^"\']*)["\']',
+            r'content\s*:\s*["\']([^"\']*)["\']',
+            r'ENCODED_FRAGMENT\s*=\s*["\']([^"\']*)["\']',
+            r'encoded\s*=\s*["\']([^"\']*)["\']',
+            r'const dataFragment = ["\']([^"\']*)["\']'
+        ]
         
+        for pattern in patterns:
+            match = re.search(pattern, code_content)
+            if match:
+                return match.group(1)
+        
+        lines = code_content.split('\n')
         for line in lines:
             line = line.strip()
-            if not line:
+            if not line or line.startswith('#') or line.startswith('//') or line.startswith('/*') or line.startswith('--'):
                 continue
-            if line.startswith('#') or line.startswith('//') or line.startswith('/*') or line.startswith('*') or line.startswith('--'):
-                continue
-            if 'ENCODED_DATA' in line or 'encoded_data' in line or 'dataFragment' in line or 'fragment' in line:
-                if '=' in line:
-                    parts = line.split('=')
-                    if len(parts) > 1:
-                        data_part = parts[1].strip().strip('"').strip("'").strip('`')
-                        if data_part:
-                            encoded_data.append(data_part)
-                elif ':' in line and ('"' in line or "'" in line):
-                    parts = line.split(':')
-                    if len(parts) > 1:
-                        data_part = parts[1].strip().strip(',').strip('"').strip("'").strip('`')
-                        if data_part:
-                            encoded_data.append(data_part)
-            elif '"""' in line or "'''" in line:
-                continue
-        
-        if encoded_data:
-            return encoded_data[0]
-        
-        for line in lines:
-            if line.strip() and not line.startswith('#') and not line.startswith('//') and not line.startswith('/*'):
-                clean_line = line.strip().strip('"').strip("'").strip('`').strip()
-                if clean_line and len(clean_line) > 20:
-                    return clean_line
+            
+            for quote_char in ['"', "'", '`']:
+                if line.count(quote_char) >= 2:
+                    parts = line.split(quote_char)
+                    if len(parts) >= 3:
+                        potential_data = parts[1]
+                        if len(potential_data) > 50 and not any(c in potential_data for c in ['#', '=', ':', '{', '}', '[', ']']):
+                            return potential_data
         
         return ""
 
@@ -504,34 +496,37 @@ requests>=2.25.0
         if not file_path.exists():
             raise FileNotFoundError(f"Chunk file not found: {chunk_info.file_path}")
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        encoded_data = StealthEncoder.extract_encoded_from_code(content)
-        
-        if not encoded_data:
-            lines = content.split('\n')
-            for line in lines:
-                line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('//') and not line.startswith('/*'):
-                    if len(line) > 50:
-                        encoded_data = line.strip('"').strip("'").strip('`')
-                        break
-        
         try:
-            compressed_data = StealthEncoder.decode_from_base85(encoded_data)
-        except:
-            return b""
-        
-        obfuscated_data = StealthEncoder.decompress_data(compressed_data)
-        
-        xor_key = int(chunk_info.xor_key) if chunk_info.xor_key else 0
-        if xor_key == 0:
-            xor_key = 1
-        
-        chunk_data = StealthEncoder.deobfuscate_data(obfuscated_data, xor_key)
-        
-        return chunk_data
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            encoded_data = StealthEncoder.extract_encoded_from_code(content)
+            
+            if not encoded_data:
+                print(f"Error: Could not extract encoded data from {file_path}")
+                raise ValueError("No encoded data found in code file")
+            
+            try:
+                compressed_data = StealthEncoder.decode_from_base85(encoded_data)
+            except Exception as e:
+                print(f"Error decoding Base85: {e}")
+                print(f"Encoded data length: {len(encoded_data)}")
+                print(f"First 100 chars: {encoded_data[:100]}")
+                raise
+            
+            obfuscated_data = StealthEncoder.decompress_data(compressed_data)
+            
+            xor_key = int(chunk_info.xor_key) if chunk_info.xor_key else 0
+            if xor_key == 0:
+                xor_key = 1
+            
+            chunk_data = StealthEncoder.deobfuscate_data(obfuscated_data, xor_key)
+            
+            return chunk_data
+            
+        except Exception as e:
+            print(f"Error retrieving chunk {chunk_info.chunk_id}: {e}")
+            raise
     
     def delete_chunk(self, chunk_info: ChunkInfo):
         file_path = self.repos_root / chunk_info.file_path
@@ -557,7 +552,8 @@ requests>=2.25.0
             try:
                 chunk_data = self.retrieve_chunk(chunk_info)
                 assembled_data.extend(chunk_data)
-            except Exception:
+            except Exception as e:
+                print(f"Error retrieving chunk {chunk_info.chunk_id}: {e}")
                 return None
         
         return bytes(assembled_data)
@@ -572,7 +568,7 @@ requests>=2.25.0
             return {"too_large": True, "max_allowed": max_size}
         
         file_data = self.get_file_data(file_id)
-        if not file_data:
+        if file_data is None:
             return None
         
         mime_type = file_meta.mime_type
@@ -780,12 +776,23 @@ def download_file(file_id):
         with open(temp_path, 'wb') as f:
             f.write(file_data)
         
-        return send_file(
+        response = send_file(
             str(temp_path),
             as_attachment=True,
             download_name=file_meta.original_name,
             mimetype=file_meta.mime_type
         )
+        
+        # Clean up temp file after sending
+        @response.call_on_close
+        def cleanup_temp():
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+            except Exception:
+                pass
+        
+        return response
         
     except Exception as e:
         print(f"Download error: {e}")
@@ -797,14 +804,17 @@ def preview_file(file_id):
         if file_id not in repo_manager.files_metadata:
             return jsonify({"error": "File not found"}), 404
         
+        file_meta = repo_manager.files_metadata[file_id]
+        
+        if file_meta.original_size > 10 * 1024 * 1024:
+            return jsonify({
+                "error": "File too large for preview",
+                "max_allowed": "10 MB"
+            }), 400
+        
         preview_data = repo_manager.get_preview_data(file_id)
         if preview_data is None:
             return jsonify({"error": "Failed to generate preview"}), 500
-        
-        if preview_data.get("too_large"):
-            return jsonify({
-                "error": f"File too large for preview"
-            }), 400
         
         return jsonify(preview_data)
         
