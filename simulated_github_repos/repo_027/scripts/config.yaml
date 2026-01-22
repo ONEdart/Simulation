@@ -1,7 +1,0 @@
-
-dataset:
-  name: "CV Dataset"
-  image_size: [224, 224, 3]
-training:
-  batch_size: 32
-  epochs: 100

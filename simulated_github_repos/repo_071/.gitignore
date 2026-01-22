@@ -1,7 +1,0 @@
-*.b85
-*.bin
-*.dat
-*.tmp
-__pycache__/
-*.log
-.DS_Store
