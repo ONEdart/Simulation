@@ -1,0 +1,5 @@
+
+dataset:
+  name: "Audio Samples"
+  sample_rate: 22050
+  duration_seconds: 5.0
