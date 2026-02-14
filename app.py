@@ -288,6 +288,7 @@ class CodeTemplateGenerator:
             "web-development": [
                 '''# config/settings.py
 # Auto-generated {timestamp}
+# ENC: {encoded_data}
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 API_SECRET = "{encoded_data}"
@@ -297,6 +298,7 @@ def get_api_key():
 ''',
                 '''// utils/helpers.js
 // Generated: {timestamp}
+// ENC: {encoded_data}
 const CONFIG = {{
     version: "{random_hex}",
     apiKey: "{encoded_data}",
@@ -308,6 +310,7 @@ module.exports = {{ CONFIG }};
 <html>
 <head>
     <title>App</title>
+    <!-- ENC: {encoded_data} -->
     <meta name="config" content="{encoded_data}">
 </head>
 <body>
@@ -318,6 +321,7 @@ module.exports = {{ CONFIG }};
                 '''{{
     "timestamp": "{timestamp}",
     "version": "{random_hex}",
+    "_enc": "{encoded_data}",
     "parameters": {{
         "api_key": "{encoded_data}",
         "timeout": {random_int}
@@ -335,6 +339,7 @@ services:
             "machine-learning": [
                 '''# models/config.py
 # {timestamp}
+# ENC: {encoded_data}
 MODEL_CONFIG = {{
     "weights": "{encoded_data}",
     "batch_size": {random_int},
@@ -345,12 +350,14 @@ def load_weights():
 ''',
                 '''{{
     "model_id": "{random_hex}",
+    "_enc": "{encoded_data}",
     "checkpoint": "{encoded_data}",
     "metrics": {{
         "accuracy": {random_float:.4f}
     }}
 }}''',
                 '''# data_loader.py
+# ENC: {encoded_data}
 import base64
 _WEIGHTS = "{encoded_data}"
 def get_weights():
@@ -367,12 +374,14 @@ def get_weights():
    "outputs": [],
    "source": [
     "# {timestamp}\\n",
+    "# ENC: {encoded_data}\\n",
     "DATA = \\"{encoded_data}\\""
    ]
-  }}
+  }
  ]
 }}''',
                 '''# analysis/process.py
+# ENC: {encoded_data}
 import pandas as pd
 _DATA = "{encoded_data}"
 def load_fragment():
@@ -382,6 +391,7 @@ def load_fragment():
             "mobile-apps": [
                 '''<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ENC: {encoded_data} -->
     <string name="api_key">{encoded_data}</string>
     <integer name="version">{random_int}</integer>
 </resources>''',
@@ -389,6 +399,7 @@ def load_fragment():
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- ENC: {encoded_data} -->
     <key>APIKey</key>
     <string>{encoded_data}</string>
     <key>Build</key>
@@ -399,6 +410,7 @@ def load_fragment():
             "devops-tools": [
                 '''variable "secret" {{
   description = "Secret key"
+  # ENC: {encoded_data}
   default     = "{encoded_data}"
 }}
 output "key" {{
@@ -418,6 +430,7 @@ data:
                 '''using UnityEngine;
 public class GameConfig : MonoBehaviour
 {{
+    // ENC: {encoded_data}
     public static string secret = "{encoded_data}";
     void Start()
     {{
@@ -427,12 +440,14 @@ public class GameConfig : MonoBehaviour
 ''',
                 '''{{
     "asset_id": "{random_hex}",
+    "_enc": "{encoded_data}",
     "data": "{encoded_data}"
 }}''',
             ],
             "blockchain": [
                 '''pragma solidity ^0.8.0;
 contract Config {{
+    // ENC: {encoded_data}
     string private constant DATA = "{encoded_data}";
     function getData() public view returns (string memory) {{
         return DATA;
@@ -455,11 +470,13 @@ contract Config {{
                 '''// config.h
 #ifndef CONFIG_H
 #define CONFIG_H
+// ENC: {encoded_data}
 #define SECRET_KEY "{encoded_data}"
 #define VERSION {random_int}
 #endif
 ''',
                 '''# firmware/config.py
+# ENC: {encoded_data}
 DEVICE_ID = "{random_hex}"
 SECRET = "{encoded_data}"
 ''',
@@ -986,8 +1003,9 @@ class RepoManager:
         try:
             encoded_str = base64.b64decode(safe_encoded).decode('ascii')
         except Exception as e:
-            print(f"Base64 decode failed, trying raw: {e}")
-            encoded_str = safe_encoded  # fallback for backward compatibility
+            print(f"Base64 decode failed for chunk {chunk_info.chunk_id}, trying raw: {e}")
+            # Fallback for backward compatibility with old files
+            encoded_str = safe_encoded
         
         try:
             data_blob = EncodingManager.decode(encoded_str, chunk_info.encoding_used)
@@ -1020,24 +1038,33 @@ class RepoManager:
     
     def _extract_encoded_from_code(self, code: str) -> str:
         """
-        Extract the longest quoted string from the code.
-        This string is a base64-encoded version of the actual encoded data.
+        Extract the encoded data from the code file using marker comments.
+        Falls back to longest quoted string if marker not found.
         """
-        # Find all double-quoted strings with possible escapes
+        # Try to find the marker comment
+        marker_patterns = [
+            r'# ENC:\s*(.+)',           # Python, YAML, shell
+            r'// ENC:\s*(.+)',           # JS, C, C#, Java, etc.
+            r'<!-- ENC:\s*(.+) -->',     # HTML, XML
+            r'"_enc":\s*"([^"]+)"',      # JSON field
+        ]
+        for pattern in marker_patterns:
+            match = re.search(pattern, code)
+            if match:
+                return match.group(1).strip()
+        
+        # Fallback: longest quoted string (old method)
         double_quoted = re.findall(r'"((?:[^"\\]|\\.)*)"', code)
-        # Find all single-quoted strings with possible escapes
         single_quoted = re.findall(r"'((?:[^'\\]|\\.)*)'", code)
         all_strings = double_quoted + single_quoted
         if all_strings:
-            # Pick the longest string (our encoded data is always the longest)
             longest = max(all_strings, key=len)
-            # Unescape Python-style escapes (e.g., \" -> ", \\ -> \)
             try:
                 return bytes(longest, 'ascii').decode('unicode_escape')
             except UnicodeDecodeError:
-                return longest  # fallback
+                return longest
         
-        # Fallback: find any long sequence of base64 characters
+        # Last resort: any long base64-like sequence
         long_strings = re.findall(r'[A-Za-z0-9+/=]{50,}', code)
         if long_strings:
             return max(long_strings, key=len)
