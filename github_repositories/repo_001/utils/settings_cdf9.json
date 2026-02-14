@@ -1,0 +1,8 @@
+{
+  "name": "config_285ab503",
+  "version": "2.4",
+  "settings": {
+    "debug": false,
+    "port": 7353
+  }
+}

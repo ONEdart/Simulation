@@ -1,0 +1,8 @@
+{
+  "name": "config_e69bde43",
+  "version": "5.7",
+  "settings": {
+    "debug": false,
+    "port": 5447
+  }
+}

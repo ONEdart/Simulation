@@ -1,0 +1,8 @@
+{
+  "name": "config_97a4a15d",
+  "version": "4.7",
+  "settings": {
+    "debug": false,
+    "port": 8683
+  }
+}
