@@ -269,13 +269,13 @@ class CodeTemplateGenerator:
     """
     
     @staticmethod
-    def generate(repo_type: str, encoded_data: str, metadata: dict) -> str:
+    def generate(repo_type: str, safe_encoded: str, metadata: dict) -> str:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         templates = CodeTemplateGenerator._get_templates_for_type(repo_type)
         template = random.choice(templates)
         return template.format(
             timestamp=timestamp,
-            encoded_data=encoded_data,
+            encoded_data=safe_encoded,
             random_hex=secrets.token_hex(8),
             random_int=random.randint(1000, 9999),
             random_float=random.uniform(1.0, 100.0),
@@ -904,10 +904,10 @@ class RepoManager:
         
         encoded_str, encoding_used = EncodingManager.encode(data_to_encode)
         
-        # Escape string menggunakan unicode_escape agar aman untuk string literal
-        escaped_encoded = encoded_str.encode('unicode_escape').decode('ascii')
+        # Double-encode with base64 to make it completely safe for string literals
+        safe_encoded = base64.b64encode(encoded_str.encode('ascii')).decode('ascii')
         
-        estimated_final_size = len(escaped_encoded) + 1000
+        estimated_final_size = len(safe_encoded) + 1000
         repo_index, repo_type = self._select_repo_for_chunk(estimated_final_size)
         
         filename = self._generate_filename(repo_type, chunk_index)
@@ -922,7 +922,7 @@ class RepoManager:
             "fragment_id": hashlib.sha256(chunk_data).hexdigest()[:12],
             "chunk_index": chunk_index
         }
-        code_content = CodeTemplateGenerator.generate(repo_type, escaped_encoded, meta)
+        code_content = CodeTemplateGenerator.generate(repo_type, safe_encoded, meta)
         
         if Config.ENABLE_WHITESPACE_STEGO:
             bits = bin(int(hashlib.sha256(chunk_data).hexdigest(), 16))[2:][:16]
@@ -978,15 +978,16 @@ class RepoManager:
         
         code = file_path.read_text(encoding='utf-8')
         
-        encoded_str = self._extract_encoded_from_code(code)
-        if not encoded_str:
+        safe_encoded = self._extract_encoded_from_code(code)
+        if not safe_encoded:
             raise ValueError("No encoded data found")
         
-        # Unescape string
+        # Decode the base64 wrapper
         try:
-            encoded_str = bytes(encoded_str, 'ascii').decode('unicode_escape')
-        except:
-            pass
+            encoded_str = base64.b64decode(safe_encoded).decode('ascii')
+        except Exception as e:
+            print(f"Base64 decode failed, trying raw: {e}")
+            encoded_str = safe_encoded  # fallback for backward compatibility
         
         try:
             data_blob = EncodingManager.decode(encoded_str, chunk_info.encoding_used)
@@ -1019,24 +1020,29 @@ class RepoManager:
     
     def _extract_encoded_from_code(self, code: str) -> str:
         """
-        Extract the longest quoted string from the code, handling escaped quotes.
-        Returns the unescaped string ready for decoding.
+        Extract the longest quoted string from the code.
+        This string is a base64-encoded version of the actual encoded data.
         """
         # Find all double-quoted strings with possible escapes
         double_quoted = re.findall(r'"((?:[^"\\]|\\.)*)"', code)
         # Find all single-quoted strings with possible escapes
         single_quoted = re.findall(r"'((?:[^'\\]|\\.)*)'", code)
         all_strings = double_quoted + single_quoted
-        if not all_strings:
-            return ""
-        # Pick the longest string (our encoded data is always the longest)
-        longest = max(all_strings, key=len)
-        # Unescape Python-style escapes (e.g., \" -> ", \\ -> \)
-        try:
-            unescaped = bytes(longest, 'ascii').decode('unicode_escape')
-        except UnicodeDecodeError:
-            unescaped = longest  # fallback
-        return unescaped
+        if all_strings:
+            # Pick the longest string (our encoded data is always the longest)
+            longest = max(all_strings, key=len)
+            # Unescape Python-style escapes (e.g., \" -> ", \\ -> \)
+            try:
+                return bytes(longest, 'ascii').decode('unicode_escape')
+            except UnicodeDecodeError:
+                return longest  # fallback
+        
+        # Fallback: find any long sequence of base64 characters
+        long_strings = re.findall(r'[A-Za-z0-9+/=]{50,}', code)
+        if long_strings:
+            return max(long_strings, key=len)
+        
+        return ""
     
     def delete_chunk(self, chunk_info: ChunkInfo):
         repo_path = self.repos_root / f"repo_{chunk_info.repo_index:03d}"
