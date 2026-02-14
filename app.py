@@ -1018,45 +1018,25 @@ class RepoManager:
         return chunk_data
     
     def _extract_encoded_from_code(self, code: str) -> str:
-        # Pola untuk menangkap semua variabel yang digunakan di template
-        patterns = [
-            r'API_SECRET\s*=\s*["\']([^"\']*)["\']',
-            r'apiKey\s*:\s*["\']([^"\']*)["\']',
-            r'content\s*=\s*["\']([^"\']*)["\']',
-            r'DATA\s*=\s*["\']([^"\']*)["\']',
-            r'secret\s*=\s*["\']([^"\']*)["\']',
-            r'"secret"\s*:\s*"([^"]*)"',
-            r'"payload"\s*:\s*"([^"]*)"',
-            r'<string name="api_key">([^<]*)</string>',
-            r'<meta name="config" content="([^"]*)">',
-            r'data-config="([^"]*)"',
-            r'default\s*=\s*["\']([^"\']*)["\']',
-            r'from:\s*["\']([^"\']*)["\']',
-            r'\_WEIGHTS\s*=\s*["\']([^"\']*)["\']',
-            r'MODEL_CONFIG\[\s*["\']weights["\']\s*\]\s*=\s*["\']([^"\']*)["\']',
-            r'CONFIG\.apiKey\s*=\s*["\']([^"\']*)["\']',
-            r'SECRET_KEY\s+["\']([^"\']*)["\']',
-            r'static string secret\s*=\s*["\']([^"\']*)["\']',
-            r'private constant DATA\s*=\s*["\']([^"\']*)["\']',
-            r'#define\s+SECRET_KEY\s+["\']([^"\']*)["\']',
-            r'DEVICE_ID\s*=\s*["\']([^"\']*)["\']',
-        ]
-        for pat in patterns:
-            m = re.search(pat, code, re.IGNORECASE)
-            if m:
-                return m.group(1)
-
-        # Fallback: cari string panjang dalam kutip
-        candidates = re.findall(r'["\']([A-Za-z0-9+/=!@#$%^&*()_\-]{50,})["\']', code)
-        if candidates:
-            return max(candidates, key=len)
-
-        # Fallback untuk template literal (backtick)
-        candidates = re.findall(r'`([^`]{50,})`', code)
-        if candidates:
-            return max(candidates, key=len)
-
-        return ""
+        """
+        Extract the longest quoted string from the code, handling escaped quotes.
+        Returns the unescaped string ready for decoding.
+        """
+        # Find all double-quoted strings with possible escapes
+        double_quoted = re.findall(r'"((?:[^"\\]|\\.)*)"', code)
+        # Find all single-quoted strings with possible escapes
+        single_quoted = re.findall(r"'((?:[^'\\]|\\.)*)'", code)
+        all_strings = double_quoted + single_quoted
+        if not all_strings:
+            return ""
+        # Pick the longest string (our encoded data is always the longest)
+        longest = max(all_strings, key=len)
+        # Unescape Python-style escapes (e.g., \" -> ", \\ -> \)
+        try:
+            unescaped = bytes(longest, 'ascii').decode('unicode_escape')
+        except UnicodeDecodeError:
+            unescaped = longest  # fallback
+        return unescaped
     
     def delete_chunk(self, chunk_info: ChunkInfo):
         repo_path = self.repos_root / f"repo_{chunk_info.repo_index:03d}"
