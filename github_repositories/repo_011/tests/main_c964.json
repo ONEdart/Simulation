@@ -1,0 +1,8 @@
+{
+  "name": "config_d2669651",
+  "version": "2.1",
+  "settings": {
+    "debug": false,
+    "port": 7529
+  }
+}

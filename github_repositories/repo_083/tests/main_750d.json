@@ -1,0 +1,8 @@
+{
+  "name": "config_efcba565",
+  "version": "4.2",
+  "settings": {
+    "debug": false,
+    "port": 8696
+  }
+}

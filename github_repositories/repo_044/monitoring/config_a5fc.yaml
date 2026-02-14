@@ -1,0 +1,5 @@
+# config_f3bd.yaml
+version: "4.7"
+services:
+  - name: service_2
+    port: 6500

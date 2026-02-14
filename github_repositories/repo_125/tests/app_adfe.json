@@ -1,0 +1,8 @@
+{
+  "name": "config_2a76ac30",
+  "version": "1.9",
+  "settings": {
+    "debug": false,
+    "port": 6726
+  }
+}

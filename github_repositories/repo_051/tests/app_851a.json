@@ -1,0 +1,8 @@
+{
+  "name": "config_39ca34f7",
+  "version": "3.2",
+  "settings": {
+    "debug": false,
+    "port": 8152
+  }
+}

@@ -1,0 +1,5 @@
+# config_caca.yaml
+version: "1.7"
+services:
+  - name: service_4
+    port: 7432

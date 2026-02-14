@@ -1,0 +1,8 @@
+{
+  "name": "config_e497be47",
+  "version": "1.0",
+  "settings": {
+    "debug": true,
+    "port": 6770
+  }
+}

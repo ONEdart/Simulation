@@ -1,0 +1,5 @@
+# config_d6b1.yaml
+version: "4.5"
+services:
+  - name: service_1
+    port: 8798

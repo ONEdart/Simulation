@@ -1,0 +1,8 @@
+{
+  "name": "config_96fa15ef",
+  "version": "1.4",
+  "settings": {
+    "debug": true,
+    "port": 3972
+  }
+}

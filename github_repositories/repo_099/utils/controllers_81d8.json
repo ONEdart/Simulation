@@ -1,0 +1,8 @@
+{
+  "name": "config_fd228198",
+  "version": "3.7",
+  "settings": {
+    "debug": false,
+    "port": 8674
+  }
+}

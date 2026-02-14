@@ -1,0 +1,8 @@
+{
+  "name": "config_9f3e2cb2",
+  "version": "2.3",
+  "settings": {
+    "debug": true,
+    "port": 8260
+  }
+}

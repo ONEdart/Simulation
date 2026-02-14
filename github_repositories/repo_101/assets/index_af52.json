@@ -1,0 +1,8 @@
+{
+  "name": "config_6207826d",
+  "version": "3.6",
+  "settings": {
+    "debug": true,
+    "port": 5993
+  }
+}

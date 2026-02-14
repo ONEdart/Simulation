@@ -1,0 +1,8 @@
+{
+  "name": "config_7b2669ce",
+  "version": "3.5",
+  "settings": {
+    "debug": true,
+    "port": 8059
+  }
+}

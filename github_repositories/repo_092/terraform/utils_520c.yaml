@@ -1,0 +1,5 @@
+# config_24fb.yaml
+version: "1.6"
+services:
+  - name: service_9
+    port: 4763

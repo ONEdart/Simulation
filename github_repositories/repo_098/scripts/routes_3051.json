@@ -1,0 +1,8 @@
+{
+  "name": "config_8239d886",
+  "version": "4.2",
+  "settings": {
+    "debug": false,
+    "port": 7764
+  }
+}

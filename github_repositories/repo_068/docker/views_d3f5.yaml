@@ -1,0 +1,5 @@
+# config_fd9b.yaml
+version: "5.6"
+services:
+  - name: service_1
+    port: 8824

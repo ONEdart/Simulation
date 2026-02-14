@@ -1,0 +1,8 @@
+{
+  "name": "config_ada00852",
+  "version": "5.1",
+  "settings": {
+    "debug": false,
+    "port": 7983
+  }
+}

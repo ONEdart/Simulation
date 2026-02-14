@@ -1,0 +1,5 @@
+# config_efb4.yaml
+version: "2.3"
+services:
+  - name: service_10
+    port: 8860

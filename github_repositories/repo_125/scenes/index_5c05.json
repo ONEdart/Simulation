@@ -1,0 +1,8 @@
+{
+  "name": "config_32c5fda8",
+  "version": "4.5",
+  "settings": {
+    "debug": true,
+    "port": 4484
+  }
+}

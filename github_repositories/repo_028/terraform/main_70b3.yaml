@@ -1,0 +1,5 @@
+# config_10f1.yaml
+version: "5.9"
+services:
+  - name: service_7
+    port: 7680

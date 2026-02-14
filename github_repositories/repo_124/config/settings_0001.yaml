@@ -1,0 +1,5 @@
+# config_4f15.yaml
+version: "2.1"
+services:
+  - name: service_2
+    port: 4554

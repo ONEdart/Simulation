@@ -1,0 +1,8 @@
+{
+  "name": "config_c5cda021",
+  "version": "3.8",
+  "settings": {
+    "debug": true,
+    "port": 8262
+  }
+}

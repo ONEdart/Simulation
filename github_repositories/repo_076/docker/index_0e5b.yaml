@@ -1,0 +1,5 @@
+# config_cee5.yaml
+version: "1.8"
+services:
+  - name: service_7
+    port: 5494

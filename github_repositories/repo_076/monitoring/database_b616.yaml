@@ -1,0 +1,5 @@
+# config_318b.yaml
+version: "4.1"
+services:
+  - name: service_10
+    port: 7278

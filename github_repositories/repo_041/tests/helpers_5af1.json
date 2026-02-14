@@ -1,0 +1,8 @@
+{
+  "name": "config_a25e5d40",
+  "version": "3.0",
+  "settings": {
+    "debug": true,
+    "port": 5137
+  }
+}

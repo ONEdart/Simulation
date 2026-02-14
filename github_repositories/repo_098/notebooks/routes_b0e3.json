@@ -1,0 +1,8 @@
+{
+  "name": "config_d70996ad",
+  "version": "4.7",
+  "settings": {
+    "debug": true,
+    "port": 4502
+  }
+}

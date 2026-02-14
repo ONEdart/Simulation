@@ -1,0 +1,8 @@
+{
+  "name": "config_5cb7ecff",
+  "version": "3.8",
+  "settings": {
+    "debug": false,
+    "port": 7042
+  }
+}

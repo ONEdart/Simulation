@@ -1,0 +1,8 @@
+{
+  "name": "config_c2004ec3",
+  "version": "3.7",
+  "settings": {
+    "debug": true,
+    "port": 6962
+  }
+}

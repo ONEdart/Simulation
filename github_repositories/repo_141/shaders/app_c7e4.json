@@ -1,0 +1,8 @@
+{
+  "name": "config_0b343cd7",
+  "version": "4.9",
+  "settings": {
+    "debug": true,
+    "port": 7223
+  }
+}

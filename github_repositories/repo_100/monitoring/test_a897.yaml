@@ -1,0 +1,5 @@
+# config_8104.yaml
+version: "1.2"
+services:
+  - name: service_10
+    port: 3613

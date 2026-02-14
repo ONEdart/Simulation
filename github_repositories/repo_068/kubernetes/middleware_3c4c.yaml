@@ -1,0 +1,5 @@
+# config_5af2.yaml
+version: "4.1"
+services:
+  - name: service_2
+    port: 6395

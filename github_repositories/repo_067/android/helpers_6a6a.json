@@ -1,0 +1,8 @@
+{
+  "name": "config_bb440a80",
+  "version": "1.1",
+  "settings": {
+    "debug": true,
+    "port": 7516
+  }
+}

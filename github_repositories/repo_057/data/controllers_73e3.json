@@ -1,0 +1,8 @@
+{
+  "name": "config_b98dfd15",
+  "version": "1.3",
+  "settings": {
+    "debug": true,
+    "port": 4099
+  }
+}

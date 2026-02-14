@@ -1,0 +1,8 @@
+{
+  "name": "config_4b23cb90",
+  "version": "2.2",
+  "settings": {
+    "debug": false,
+    "port": 7702
+  }
+}

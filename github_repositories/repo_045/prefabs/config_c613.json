@@ -1,0 +1,8 @@
+{
+  "name": "config_e381201b",
+  "version": "4.9",
+  "settings": {
+    "debug": true,
+    "port": 7765
+  }
+}

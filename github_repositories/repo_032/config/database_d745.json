@@ -1,0 +1,8 @@
+{
+  "name": "config_07c84623",
+  "version": "3.8",
+  "settings": {
+    "debug": true,
+    "port": 5994
+  }
+}

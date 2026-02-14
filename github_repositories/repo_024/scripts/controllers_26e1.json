@@ -1,0 +1,8 @@
+{
+  "name": "config_d403e234",
+  "version": "2.3",
+  "settings": {
+    "debug": false,
+    "port": 8966
+  }
+}

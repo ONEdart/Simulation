@@ -1,0 +1,8 @@
+{
+  "name": "config_4388d81b",
+  "version": "1.9",
+  "settings": {
+    "debug": true,
+    "port": 4867
+  }
+}

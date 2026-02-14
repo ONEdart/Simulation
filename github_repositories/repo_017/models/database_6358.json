@@ -1,0 +1,8 @@
+{
+  "name": "config_808b1e0a",
+  "version": "3.4",
+  "settings": {
+    "debug": false,
+    "port": 8387
+  }
+}

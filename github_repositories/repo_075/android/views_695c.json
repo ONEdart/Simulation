@@ -1,0 +1,8 @@
+{
+  "name": "config_d974fd05",
+  "version": "1.9",
+  "settings": {
+    "debug": false,
+    "port": 6593
+  }
+}

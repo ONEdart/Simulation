@@ -1,0 +1,8 @@
+{
+  "name": "config_4b6d28b1",
+  "version": "1.7",
+  "settings": {
+    "debug": false,
+    "port": 6547
+  }
+}

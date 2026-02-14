@@ -1,0 +1,5 @@
+# config_b7c1.yaml
+version: "5.3"
+services:
+  - name: service_6
+    port: 4997

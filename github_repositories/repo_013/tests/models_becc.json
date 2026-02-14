@@ -1,0 +1,8 @@
+{
+  "name": "config_66c527cd",
+  "version": "3.1",
+  "settings": {
+    "debug": false,
+    "port": 6953
+  }
+}

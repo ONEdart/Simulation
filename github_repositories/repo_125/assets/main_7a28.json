@@ -1,0 +1,8 @@
+{
+  "name": "config_c3c3c8c1",
+  "version": "2.1",
+  "settings": {
+    "debug": true,
+    "port": 3779
+  }
+}

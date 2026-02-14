@@ -1,0 +1,8 @@
+{
+  "name": "config_e51b59f8",
+  "version": "1.5",
+  "settings": {
+    "debug": true,
+    "port": 4377
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_bf1d0678",
+  "version": "4.7",
+  "settings": {
+    "debug": true,
+    "port": 3555
+  }
+}

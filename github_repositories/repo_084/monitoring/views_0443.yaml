@@ -1,0 +1,5 @@
+# config_60e4.yaml
+version: "2.0"
+services:
+  - name: service_5
+    port: 7664

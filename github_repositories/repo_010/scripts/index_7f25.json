@@ -1,0 +1,8 @@
+{
+  "name": "config_b80fa056",
+  "version": "1.5",
+  "settings": {
+    "debug": true,
+    "port": 5502
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_bc419b32",
+  "version": "5.2",
+  "settings": {
+    "debug": false,
+    "port": 6290
+  }
+}

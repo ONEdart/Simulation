@@ -1,0 +1,5 @@
+# config_5b03.yaml
+version: "5.3"
+services:
+  - name: service_2
+    port: 6668

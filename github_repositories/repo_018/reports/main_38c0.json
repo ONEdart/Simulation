@@ -1,0 +1,8 @@
+{
+  "name": "config_1e384a51",
+  "version": "2.9",
+  "settings": {
+    "debug": true,
+    "port": 6472
+  }
+}

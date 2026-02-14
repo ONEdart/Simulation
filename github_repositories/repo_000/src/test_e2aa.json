@@ -1,0 +1,8 @@
+{
+  "name": "config_f43c9287",
+  "version": "4.8",
+  "settings": {
+    "debug": true,
+    "port": 5548
+  }
+}

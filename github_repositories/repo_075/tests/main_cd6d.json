@@ -1,0 +1,8 @@
+{
+  "name": "config_9e869adb",
+  "version": "5.0",
+  "settings": {
+    "debug": true,
+    "port": 4597
+  }
+}

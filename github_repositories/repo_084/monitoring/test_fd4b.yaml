@@ -1,0 +1,5 @@
+# config_4a63.yaml
+version: "5.7"
+services:
+  - name: service_4
+    port: 5345

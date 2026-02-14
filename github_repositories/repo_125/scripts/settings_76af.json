@@ -1,0 +1,8 @@
+{
+  "name": "config_510b03dd",
+  "version": "3.4",
+  "settings": {
+    "debug": true,
+    "port": 6226
+  }
+}

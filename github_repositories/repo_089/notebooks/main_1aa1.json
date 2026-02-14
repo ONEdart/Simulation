@@ -1,0 +1,8 @@
+{
+  "name": "config_23d0182e",
+  "version": "4.6",
+  "settings": {
+    "debug": true,
+    "port": 8550
+  }
+}

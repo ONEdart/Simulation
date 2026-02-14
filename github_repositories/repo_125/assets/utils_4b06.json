@@ -1,0 +1,8 @@
+{
+  "name": "config_e4161649",
+  "version": "5.2",
+  "settings": {
+    "debug": false,
+    "port": 6842
+  }
+}

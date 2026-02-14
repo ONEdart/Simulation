@@ -1,0 +1,8 @@
+{
+  "name": "config_3d825077",
+  "version": "5.7",
+  "settings": {
+    "debug": true,
+    "port": 4860
+  }
+}

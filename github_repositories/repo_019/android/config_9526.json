@@ -1,0 +1,8 @@
+{
+  "name": "config_5ffd1084",
+  "version": "3.2",
+  "settings": {
+    "debug": true,
+    "port": 6030
+  }
+}

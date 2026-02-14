@@ -1,0 +1,8 @@
+{
+  "name": "config_15ab2517",
+  "version": "1.1",
+  "settings": {
+    "debug": true,
+    "port": 6967
+  }
+}

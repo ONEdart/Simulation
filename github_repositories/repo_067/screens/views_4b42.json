@@ -1,0 +1,8 @@
+{
+  "name": "config_e3612c6c",
+  "version": "2.3",
+  "settings": {
+    "debug": true,
+    "port": 8925
+  }
+}

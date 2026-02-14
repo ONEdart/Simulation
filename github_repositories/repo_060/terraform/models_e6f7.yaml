@@ -1,0 +1,5 @@
+# config_bf79.yaml
+version: "5.5"
+services:
+  - name: service_3
+    port: 6260

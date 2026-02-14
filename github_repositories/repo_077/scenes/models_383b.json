@@ -1,0 +1,8 @@
+{
+  "name": "config_00fa7685",
+  "version": "5.7",
+  "settings": {
+    "debug": true,
+    "port": 6149
+  }
+}

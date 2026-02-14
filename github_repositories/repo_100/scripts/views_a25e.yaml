@@ -1,0 +1,5 @@
+# config_2a03.yaml
+version: "2.6"
+services:
+  - name: service_5
+    port: 6632

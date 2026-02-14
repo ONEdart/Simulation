@@ -1,0 +1,8 @@
+{
+  "name": "config_dcd1d6d8",
+  "version": "3.7",
+  "settings": {
+    "debug": true,
+    "port": 6337
+  }
+}

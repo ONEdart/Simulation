@@ -1,0 +1,5 @@
+# config_7756.yaml
+version: "5.9"
+services:
+  - name: service_5
+    port: 4954

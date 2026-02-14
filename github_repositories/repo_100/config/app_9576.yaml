@@ -1,0 +1,5 @@
+# config_b4c5.yaml
+version: "4.2"
+services:
+  - name: service_2
+    port: 5593

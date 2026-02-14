@@ -1,0 +1,5 @@
+# config_26d8.yaml
+version: "1.5"
+services:
+  - name: service_3
+    port: 7661

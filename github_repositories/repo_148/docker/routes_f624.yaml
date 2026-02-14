@@ -1,0 +1,5 @@
+# config_de84.yaml
+version: "4.6"
+services:
+  - name: service_4
+    port: 6036

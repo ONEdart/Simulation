@@ -1,0 +1,8 @@
+{
+  "name": "config_507251d2",
+  "version": "2.3",
+  "settings": {
+    "debug": true,
+    "port": 7733
+  }
+}

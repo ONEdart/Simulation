@@ -1,0 +1,8 @@
+{
+  "name": "config_954be661",
+  "version": "2.5",
+  "settings": {
+    "debug": true,
+    "port": 6039
+  }
+}

@@ -1,0 +1,5 @@
+# config_9329.yaml
+version: "5.1"
+services:
+  - name: service_4
+    port: 7994

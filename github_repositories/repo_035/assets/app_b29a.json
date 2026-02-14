@@ -1,0 +1,8 @@
+{
+  "name": "config_e420dd6f",
+  "version": "4.6",
+  "settings": {
+    "debug": true,
+    "port": 5108
+  }
+}

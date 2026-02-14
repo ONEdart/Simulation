@@ -1,0 +1,8 @@
+{
+  "name": "config_d01366c5",
+  "version": "5.4",
+  "settings": {
+    "debug": true,
+    "port": 6553
+  }
+}

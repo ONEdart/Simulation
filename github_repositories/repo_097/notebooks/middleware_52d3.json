@@ -1,0 +1,8 @@
+{
+  "name": "config_bee03930",
+  "version": "4.3",
+  "settings": {
+    "debug": true,
+    "port": 6252
+  }
+}

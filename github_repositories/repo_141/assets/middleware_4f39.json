@@ -1,0 +1,8 @@
+{
+  "name": "config_46f1adb0",
+  "version": "5.0",
+  "settings": {
+    "debug": true,
+    "port": 8448
+  }
+}

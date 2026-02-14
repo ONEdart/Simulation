@@ -1,0 +1,5 @@
+# config_8124.yaml
+version: "5.2"
+services:
+  - name: service_2
+    port: 5123

@@ -1,0 +1,8 @@
+{
+  "name": "config_fcf291da",
+  "version": "5.9",
+  "settings": {
+    "debug": true,
+    "port": 6947
+  }
+}

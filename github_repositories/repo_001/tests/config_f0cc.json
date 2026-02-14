@@ -1,0 +1,8 @@
+{
+  "name": "config_e1a7259e",
+  "version": "1.9",
+  "settings": {
+    "debug": true,
+    "port": 7395
+  }
+}

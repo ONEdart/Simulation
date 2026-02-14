@@ -1,0 +1,8 @@
+{
+  "name": "config_e4e2ee7e",
+  "version": "5.4",
+  "settings": {
+    "debug": true,
+    "port": 8731
+  }
+}

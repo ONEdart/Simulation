@@ -1,0 +1,8 @@
+{
+  "name": "config_38020773",
+  "version": "5.5",
+  "settings": {
+    "debug": true,
+    "port": 8347
+  }
+}

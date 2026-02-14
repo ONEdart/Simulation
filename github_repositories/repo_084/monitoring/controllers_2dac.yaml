@@ -1,0 +1,5 @@
+# config_c3f4.yaml
+version: "4.1"
+services:
+  - name: service_4
+    port: 3262

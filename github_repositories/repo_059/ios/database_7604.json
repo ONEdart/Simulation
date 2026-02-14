@@ -1,0 +1,8 @@
+{
+  "name": "config_a2bbc05b",
+  "version": "3.0",
+  "settings": {
+    "debug": true,
+    "port": 6497
+  }
+}

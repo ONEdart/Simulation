@@ -1,0 +1,8 @@
+{
+  "name": "config_7aa2066e",
+  "version": "5.7",
+  "settings": {
+    "debug": true,
+    "port": 6613
+  }
+}

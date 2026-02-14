@@ -1,0 +1,5 @@
+# config_558e.yaml
+version: "1.2"
+services:
+  - name: service_4
+    port: 6967

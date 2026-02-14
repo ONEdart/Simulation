@@ -1,0 +1,8 @@
+{
+  "name": "config_734c8eb5",
+  "version": "3.2",
+  "settings": {
+    "debug": true,
+    "port": 3042
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_50120dc2",
+  "version": "5.4",
+  "settings": {
+    "debug": true,
+    "port": 3644
+  }
+}

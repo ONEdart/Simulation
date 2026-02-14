@@ -1,0 +1,8 @@
+{
+  "name": "config_e3736bf1",
+  "version": "3.2",
+  "settings": {
+    "debug": true,
+    "port": 8193
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_9a20af64",
+  "version": "1.4",
+  "settings": {
+    "debug": false,
+    "port": 4221
+  }
+}

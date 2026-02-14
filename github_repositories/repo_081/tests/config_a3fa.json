@@ -1,0 +1,8 @@
+{
+  "name": "config_737627e8",
+  "version": "2.7",
+  "settings": {
+    "debug": false,
+    "port": 4527
+  }
+}

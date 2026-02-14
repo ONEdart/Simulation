@@ -1,0 +1,8 @@
+{
+  "name": "config_b5b77ffb",
+  "version": "2.6",
+  "settings": {
+    "debug": true,
+    "port": 5470
+  }
+}

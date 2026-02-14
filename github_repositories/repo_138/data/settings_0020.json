@@ -1,0 +1,8 @@
+{
+  "name": "config_fc4b7eda",
+  "version": "1.7",
+  "settings": {
+    "debug": true,
+    "port": 3207
+  }
+}

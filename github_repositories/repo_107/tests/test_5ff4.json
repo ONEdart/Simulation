@@ -1,0 +1,8 @@
+{
+  "name": "config_f67e0894",
+  "version": "5.0",
+  "settings": {
+    "debug": false,
+    "port": 6457
+  }
+}

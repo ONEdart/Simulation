@@ -1,0 +1,8 @@
+{
+  "name": "config_8ffb79b0",
+  "version": "2.7",
+  "settings": {
+    "debug": false,
+    "port": 8052
+  }
+}

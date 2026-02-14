@@ -1,0 +1,8 @@
+{
+  "name": "config_6324cf88",
+  "version": "4.2",
+  "settings": {
+    "debug": true,
+    "port": 7766
+  }
+}

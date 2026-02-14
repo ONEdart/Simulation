@@ -1,0 +1,5 @@
+# config_191d.yaml
+version: "5.6"
+services:
+  - name: service_6
+    port: 4092

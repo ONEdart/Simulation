@@ -1,0 +1,8 @@
+{
+  "name": "config_2780b48d",
+  "version": "1.6",
+  "settings": {
+    "debug": false,
+    "port": 8387
+  }
+}

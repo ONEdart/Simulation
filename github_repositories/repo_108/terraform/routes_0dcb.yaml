@@ -1,0 +1,5 @@
+# config_ec58.yaml
+version: "1.6"
+services:
+  - name: service_9
+    port: 5438

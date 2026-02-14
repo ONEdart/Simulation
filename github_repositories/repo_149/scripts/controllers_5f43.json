@@ -1,0 +1,8 @@
+{
+  "name": "config_44fe95f0",
+  "version": "1.0",
+  "settings": {
+    "debug": false,
+    "port": 6612
+  }
+}

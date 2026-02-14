@@ -1,0 +1,5 @@
+# config_9a3d.yaml
+version: "2.8"
+services:
+  - name: service_8
+    port: 3773

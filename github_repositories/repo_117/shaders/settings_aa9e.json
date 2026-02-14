@@ -1,0 +1,8 @@
+{
+  "name": "config_bc2e00c5",
+  "version": "4.9",
+  "settings": {
+    "debug": false,
+    "port": 7394
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_1524ecb7",
+  "version": "1.0",
+  "settings": {
+    "debug": true,
+    "port": 7421
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "config_b957de4e",
+  "version": "2.6",
+  "settings": {
+    "debug": true,
+    "port": 6484
+  }
+}

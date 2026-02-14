@@ -1,0 +1,8 @@
+{
+  "name": "config_9fe60638",
+  "version": "1.5",
+  "settings": {
+    "debug": true,
+    "port": 7605
+  }
+}

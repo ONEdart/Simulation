@@ -1,0 +1,8 @@
+{
+  "name": "config_fd44a01b",
+  "version": "2.1",
+  "settings": {
+    "debug": false,
+    "port": 5848
+  }
+}

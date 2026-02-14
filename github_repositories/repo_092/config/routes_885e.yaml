@@ -1,0 +1,5 @@
+# config_81cf.yaml
+version: "2.3"
+services:
+  - name: service_6
+    port: 7268

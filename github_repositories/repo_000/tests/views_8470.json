@@ -1,0 +1,8 @@
+{
+  "name": "config_49a02476",
+  "version": "4.1",
+  "settings": {
+    "debug": true,
+    "port": 4933
+  }
+}

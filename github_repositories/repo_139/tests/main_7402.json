@@ -1,0 +1,8 @@
+{
+  "name": "config_c885aea8",
+  "version": "2.3",
+  "settings": {
+    "debug": true,
+    "port": 8986
+  }
+}

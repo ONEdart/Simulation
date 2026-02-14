@@ -1,0 +1,5 @@
+# config_ece3.yaml
+version: "4.9"
+services:
+  - name: service_2
+    port: 4386

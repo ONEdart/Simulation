@@ -1,0 +1,8 @@
+{
+  "name": "config_10e25ff6",
+  "version": "2.8",
+  "settings": {
+    "debug": false,
+    "port": 6803
+  }
+}

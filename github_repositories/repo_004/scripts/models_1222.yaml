@@ -1,0 +1,5 @@
+# config_8059.yaml
+version: "5.0"
+services:
+  - name: service_5
+    port: 3591

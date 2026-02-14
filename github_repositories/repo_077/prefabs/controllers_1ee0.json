@@ -1,0 +1,8 @@
+{
+  "name": "config_af939694",
+  "version": "2.8",
+  "settings": {
+    "debug": true,
+    "port": 7395
+  }
+}

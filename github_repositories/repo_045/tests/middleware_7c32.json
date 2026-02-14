@@ -1,0 +1,8 @@
+{
+  "name": "config_48ca1a97",
+  "version": "5.4",
+  "settings": {
+    "debug": true,
+    "port": 6246
+  }
+}

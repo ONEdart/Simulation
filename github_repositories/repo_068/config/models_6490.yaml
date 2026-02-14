@@ -1,0 +1,5 @@
+# config_e1ae.yaml
+version: "2.0"
+services:
+  - name: service_2
+    port: 4484

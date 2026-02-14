@@ -1,0 +1,8 @@
+{
+  "name": "config_0e7504cb",
+  "version": "3.7",
+  "settings": {
+    "debug": true,
+    "port": 8927
+  }
+}

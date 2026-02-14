@@ -1,0 +1,8 @@
+{
+  "name": "config_9a9cc47c",
+  "version": "4.9",
+  "settings": {
+    "debug": true,
+    "port": 7921
+  }
+}

@@ -1,0 +1,5 @@
+# config_20d6.yaml
+version: "5.0"
+services:
+  - name: service_6
+    port: 7408

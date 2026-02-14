@@ -1,0 +1,5 @@
+# config_3e8a.yaml
+version: "5.7"
+services:
+  - name: service_10
+    port: 6448

@@ -1,0 +1,5 @@
+# config_aeb8.yaml
+version: "4.6"
+services:
+  - name: service_10
+    port: 4528

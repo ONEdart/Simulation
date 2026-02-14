@@ -1,0 +1,5 @@
+# config_797c.yaml
+version: "2.7"
+services:
+  - name: service_3
+    port: 7997

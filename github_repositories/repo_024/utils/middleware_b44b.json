@@ -1,0 +1,8 @@
+{
+  "name": "config_1310dc11",
+  "version": "2.6",
+  "settings": {
+    "debug": false,
+    "port": 4081
+  }
+}

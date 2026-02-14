@@ -1,0 +1,8 @@
+{
+  "name": "config_6dd05df6",
+  "version": "2.0",
+  "settings": {
+    "debug": false,
+    "port": 8903
+  }
+}

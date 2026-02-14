@@ -1,0 +1,8 @@
+{
+  "name": "config_b3f3762e",
+  "version": "1.6",
+  "settings": {
+    "debug": false,
+    "port": 7883
+  }
+}

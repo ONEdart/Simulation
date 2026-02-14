@@ -1,0 +1,5 @@
+# config_4b9b.yaml
+version: "2.6"
+services:
+  - name: service_7
+    port: 3332

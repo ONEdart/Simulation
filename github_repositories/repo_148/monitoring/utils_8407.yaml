@@ -1,0 +1,5 @@
+# config_368e.yaml
+version: "3.8"
+services:
+  - name: service_7
+    port: 7195

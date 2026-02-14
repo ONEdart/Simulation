@@ -1,0 +1,8 @@
+{
+  "name": "config_7b068b65",
+  "version": "3.4",
+  "settings": {
+    "debug": true,
+    "port": 4464
+  }
+}

@@ -1,0 +1,5 @@
+# config_2415.yaml
+version: "4.8"
+services:
+  - name: service_2
+    port: 8114

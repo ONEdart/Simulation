@@ -1,0 +1,8 @@
+{
+  "name": "config_90c740af",
+  "version": "2.4",
+  "settings": {
+    "debug": true,
+    "port": 4945
+  }
+}

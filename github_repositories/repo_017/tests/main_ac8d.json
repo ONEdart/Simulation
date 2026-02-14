@@ -1,0 +1,8 @@
+{
+  "name": "config_d1ce6c9d",
+  "version": "2.3",
+  "settings": {
+    "debug": false,
+    "port": 6693
+  }
+}

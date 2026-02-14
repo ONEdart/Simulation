@@ -1,0 +1,8 @@
+{
+  "name": "config_39b630c7",
+  "version": "1.9",
+  "settings": {
+    "debug": true,
+    "port": 8710
+  }
+}

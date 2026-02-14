@@ -1,0 +1,8 @@
+{
+  "name": "config_5c96cfc0",
+  "version": "2.4",
+  "settings": {
+    "debug": false,
+    "port": 5671
+  }
+}

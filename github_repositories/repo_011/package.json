@@ -1,0 +1,7 @@
+{
+  "name": "project-a9bc1ceb",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo test"
+  }
+}

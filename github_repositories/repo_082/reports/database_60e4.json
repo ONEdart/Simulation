@@ -1,0 +1,8 @@
+{
+  "name": "config_29880ddf",
+  "version": "3.6",
+  "settings": {
+    "debug": true,
+    "port": 6622
+  }
+}

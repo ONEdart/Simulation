@@ -1,0 +1,8 @@
+{
+  "name": "config_12b07e00",
+  "version": "3.0",
+  "settings": {
+    "debug": true,
+    "port": 7990
+  }
+}

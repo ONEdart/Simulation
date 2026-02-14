@@ -1,0 +1,5 @@
+# config_7d58.yaml
+version: "1.9"
+services:
+  - name: service_8
+    port: 6716

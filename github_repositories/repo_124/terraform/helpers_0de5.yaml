@@ -1,0 +1,5 @@
+# config_0fb7.yaml
+version: "1.5"
+services:
+  - name: service_4
+    port: 4097

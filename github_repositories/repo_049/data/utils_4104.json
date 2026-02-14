@@ -1,0 +1,8 @@
+{
+  "name": "config_95c10c1a",
+  "version": "2.7",
+  "settings": {
+    "debug": true,
+    "port": 8533
+  }
+}

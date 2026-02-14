@@ -1,0 +1,5 @@
+# config_9145.yaml
+version: "4.7"
+services:
+  - name: service_5
+    port: 7340

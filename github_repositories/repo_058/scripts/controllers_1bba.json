@@ -1,0 +1,8 @@
+{
+  "name": "config_ea52fa6e",
+  "version": "3.8",
+  "settings": {
+    "debug": false,
+    "port": 3954
+  }
+}

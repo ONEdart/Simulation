@@ -1,0 +1,8 @@
+{
+  "name": "config_d41927f1",
+  "version": "4.2",
+  "settings": {
+    "debug": false,
+    "port": 7487
+  }
+}

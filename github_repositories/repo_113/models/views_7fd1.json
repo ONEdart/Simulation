@@ -1,0 +1,8 @@
+{
+  "name": "config_49eaa6b7",
+  "version": "1.9",
+  "settings": {
+    "debug": false,
+    "port": 3697
+  }
+}

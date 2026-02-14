@@ -1,0 +1,8 @@
+{
+  "name": "config_eb5b1cc4",
+  "version": "2.7",
+  "settings": {
+    "debug": false,
+    "port": 4584
+  }
+}

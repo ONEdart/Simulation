@@ -1,0 +1,8 @@
+{
+  "name": "config_53bc8c88",
+  "version": "4.7",
+  "settings": {
+    "debug": true,
+    "port": 8662
+  }
+}

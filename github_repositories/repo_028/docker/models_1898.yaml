@@ -1,0 +1,5 @@
+# config_fa89.yaml
+version: "4.2"
+services:
+  - name: service_3
+    port: 5021

@@ -1,0 +1,5 @@
+# config_95d7.yaml
+version: "2.9"
+services:
+  - name: service_9
+    port: 6129

@@ -1,0 +1,8 @@
+{
+  "name": "config_5e7c1cb7",
+  "version": "3.7",
+  "settings": {
+    "debug": true,
+    "port": 3169
+  }
+}
