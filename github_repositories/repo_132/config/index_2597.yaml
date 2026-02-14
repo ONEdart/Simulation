@@ -1,5 +1,0 @@
-# config_3150.yaml
-version: "4.5"
-services:
-  - name: service_8
-    port: 8141

@@ -1,8 +1,0 @@
-{
-  "name": "config_be39d3ea",
-  "version": "4.2",
-  "settings": {
-    "debug": true,
-    "port": 3749
-  }
-}

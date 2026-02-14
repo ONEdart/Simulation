@@ -1,5 +1,0 @@
-# config_fa32.yaml
-version: "2.7"
-services:
-  - name: service_2
-    port: 5877

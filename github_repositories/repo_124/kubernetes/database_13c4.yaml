@@ -1,5 +1,0 @@
-# config_26d9.yaml
-version: "5.0"
-services:
-  - name: service_1
-    port: 7124

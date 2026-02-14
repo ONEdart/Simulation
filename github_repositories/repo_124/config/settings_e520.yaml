@@ -1,5 +1,0 @@
-# config_1797.yaml
-version: "3.5"
-services:
-  - name: service_5
-    port: 3687

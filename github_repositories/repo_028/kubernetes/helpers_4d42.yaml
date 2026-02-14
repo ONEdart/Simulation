@@ -1,5 +1,0 @@
-# config_cf6a.yaml
-version: "1.6"
-services:
-  - name: service_9
-    port: 7542

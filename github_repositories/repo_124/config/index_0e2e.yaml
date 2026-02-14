@@ -1,5 +1,0 @@
-# config_8878.yaml
-version: "3.3"
-services:
-  - name: service_8
-    port: 3696

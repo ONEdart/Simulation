@@ -1,5 +1,0 @@
-# config_9048.yaml
-version: "4.0"
-services:
-  - name: service_6
-    port: 8550

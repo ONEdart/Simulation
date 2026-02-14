@@ -1,5 +1,0 @@
-# config_3a3c.yaml
-version: "5.8"
-services:
-  - name: service_7
-    port: 5296

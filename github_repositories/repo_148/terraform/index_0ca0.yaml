@@ -1,5 +1,0 @@
-# config_e90d.yaml
-version: "5.6"
-services:
-  - name: service_8
-    port: 4982

@@ -1,3 +1,0 @@
-# Project blockchain
-
-Auto-generated.

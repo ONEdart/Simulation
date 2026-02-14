@@ -1,5 +1,0 @@
-# config_f4a9.yaml
-version: "3.8"
-services:
-  - name: service_4
-    port: 4157

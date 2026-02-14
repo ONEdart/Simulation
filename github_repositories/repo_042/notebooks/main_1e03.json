@@ -1,8 +1,0 @@
-{
-  "name": "config_ca8533cf",
-  "version": "2.8",
-  "settings": {
-    "debug": false,
-    "port": 5827
-  }
-}

@@ -1,5 +1,0 @@
-# config_bbc7.yaml
-version: "1.0"
-services:
-  - name: service_5
-    port: 3441

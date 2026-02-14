@@ -1,5 +1,0 @@
-# config_a457.yaml
-version: "5.7"
-services:
-  - name: service_2
-    port: 3676

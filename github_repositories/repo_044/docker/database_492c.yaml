@@ -1,5 +1,0 @@
-# config_7136.yaml
-version: "4.6"
-services:
-  - name: service_7
-    port: 4120

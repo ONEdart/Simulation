@@ -1,5 +1,0 @@
-# config_3f39.yaml
-version: "2.4"
-services:
-  - name: service_2
-    port: 4206

@@ -1,5 +1,0 @@
-# config_f522.yaml
-version: "2.1"
-services:
-  - name: service_7
-    port: 5475

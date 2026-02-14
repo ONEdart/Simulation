@@ -1,5 +1,0 @@
-# config_6196.yaml
-version: "4.2"
-services:
-  - name: service_5
-    port: 3672

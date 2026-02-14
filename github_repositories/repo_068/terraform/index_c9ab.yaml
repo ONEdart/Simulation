@@ -1,5 +1,0 @@
-# config_5424.yaml
-version: "1.5"
-services:
-  - name: service_5
-    port: 6701

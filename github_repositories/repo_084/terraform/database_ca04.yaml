@@ -1,5 +1,0 @@
-# config_4e8c.yaml
-version: "3.3"
-services:
-  - name: service_1
-    port: 6069

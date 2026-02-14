@@ -1,5 +1,0 @@
-# config_04d4.yaml
-version: "4.8"
-services:
-  - name: service_7
-    port: 4010

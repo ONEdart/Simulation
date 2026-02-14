@@ -1,5 +1,0 @@
-# config_7448.yaml
-version: "5.2"
-services:
-  - name: service_8
-    port: 3191

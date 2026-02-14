@@ -1,5 +1,0 @@
-# config_d56c.yaml
-version: "3.0"
-services:
-  - name: service_4
-    port: 7743

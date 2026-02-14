@@ -55,7 +55,7 @@ from werkzeug.utils import secure_filename
 
 # ======================== CONFIGURATION ========================
 class Config:
-    RAW_CHUNK_SIZE = 3 * 1024 * 1024          # 3 MB per chunk
+    RAW_CHUNK_SIZE = 3 * 1024 * 1024          # 3 MB per chunk (max)
     TOTAL_REPOS = 150                          # jumlah repositori palsu
     REPO_MAX_SIZE = 1 * 1024 * 1024 * 1024     # 1 GB per repo
     BASE_DIR = Path(__file__).parent
@@ -117,9 +117,7 @@ class FileMetadata:
 # ======================== KOMPAKTOR METADATA (MANUAL, TANPA asdict) ========================
 def compact_chunk(c: ChunkInfo) -> dict:
     """Ubah dataclass ChunkInfo menjadi dict dengan kode pendek."""
-    # Pastikan c adalah objek, bukan dict
     if not isinstance(c, ChunkInfo):
-        # Jika sudah dict (misal dari metadata corrupt), kembalikan apa adanya
         return c
     return {
         'id': c.chunk_id,
@@ -136,7 +134,6 @@ def compact_chunk(c: ChunkInfo) -> dict:
     }
 
 def expand_chunk(d: dict) -> ChunkInfo:
-    """Kembalikan dict dengan kode pendek ke dataclass ChunkInfo."""
     required = ['id', 'ri', 'p', 'i', 'h', 'c', 'ea', 'eu']
     for f in required:
         if f not in d:
@@ -156,7 +153,6 @@ def expand_chunk(d: dict) -> ChunkInfo:
     )
 
 def compact_file(f: FileMetadata) -> dict:
-    """Ubah dataclass FileMetadata menjadi dict dengan kode pendek."""
     if not isinstance(f, FileMetadata):
         return f
     return {
@@ -171,7 +167,6 @@ def compact_file(f: FileMetadata) -> dict:
     }
 
 def expand_file(d: dict) -> FileMetadata:
-    """Kembalikan dict dengan kode pendek ke dataclass FileMetadata."""
     required = ['id', 'n', 'sz', 'm', 'ut', 'cs', 't']
     for f in required:
         if f not in d:
@@ -227,14 +222,12 @@ class StegoText:
     
     @staticmethod
     def hide(cover_text: str, secret_bits: str) -> str:
-        """Sisipkan bit setelah setiap baris komentar."""
         lines = cover_text.split('\n')
         result = []
         bit_idx = 0
         for line in lines:
             result.append(line)
             if bit_idx < len(secret_bits) and line.strip().startswith(('#', '//', '/*', '*')):
-                # Tambahkan spasi/tab di akhir baris komentar
                 if secret_bits[bit_idx] == '1':
                     result[-1] += ' '
                 else:
@@ -278,11 +271,8 @@ class CodeTemplateGenerator:
     @staticmethod
     def generate(repo_type: str, encoded_data: str, metadata: dict) -> str:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # Pilih template berdasarkan tipe repo
         templates = CodeTemplateGenerator._get_templates_for_type(repo_type)
         template = random.choice(templates)
-        
-        # Opsional sisipkan whitespace stego (nanti dilakukan setelah generate)
         return template.format(
             timestamp=timestamp,
             encoded_data=encoded_data,
@@ -294,37 +284,26 @@ class CodeTemplateGenerator:
     
     @staticmethod
     def _get_templates_for_type(repo_type):
-        # Template sangat bervariasi, tanpa kata mencolok.
-        # String encoded ditempatkan sebagai konstanta, nilai default, atau dalam komentar.
         templates = {
             "web-development": [
-                # Python config module
                 '''# config/settings.py
 # Auto-generated {timestamp}
 import os
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# API configuration
 API_SECRET = "{encoded_data}"
 DEBUG = {random_int} % 2 == 0
-
 def get_api_key():
     return API_SECRET
 ''',
-                # JavaScript utility
                 '''// utils/helpers.js
 // Generated: {timestamp}
-
 const CONFIG = {{
     version: "{random_hex}",
     apiKey: "{encoded_data}",
     retries: {random_int}
 }};
-
-module.exports = { CONFIG };
+module.exports = {{ CONFIG }};
 ''',
-                # HTML with data attribute
                 '''<!DOCTYPE html>
 <html>
 <head>
@@ -336,16 +315,14 @@ module.exports = { CONFIG };
 </body>
 </html>
 ''',
-                # JSON configuration
-                '''{
+                '''{{
     "timestamp": "{timestamp}",
     "version": "{random_hex}",
-    "parameters": {
+    "parameters": {{
         "api_key": "{encoded_data}",
         "timeout": {random_int}
-    }
-}''',
-                # YAML
+    }}
+}}''',
                 '''# docker-compose.yml
 version: '3'
 services:
@@ -356,20 +333,16 @@ services:
 ''',
             ],
             "machine-learning": [
-                # Python model config
                 '''# models/config.py
 # {timestamp}
-
 MODEL_CONFIG = {{
     "weights": "{encoded_data}",
     "batch_size": {random_int},
     "learning_rate": {random_float:.4f}
 }}
-
 def load_weights():
     return MODEL_CONFIG["weights"]
 ''',
-                # JSON model metadata
                 '''{{
     "model_id": "{random_hex}",
     "checkpoint": "{encoded_data}",
@@ -377,19 +350,14 @@ def load_weights():
         "accuracy": {random_float:.4f}
     }}
 }}''',
-                # Python script with embedded base64
                 '''# data_loader.py
 import base64
-
-# Pre-trained weights (base64)
 _WEIGHTS = "{encoded_data}"
-
 def get_weights():
     return base64.b64decode(_WEIGHTS)
 ''',
             ],
             "data-science": [
-                # Jupyter notebook style (JSON)
                 '''{{
  "cells": [
   {{
@@ -404,25 +372,19 @@ def get_weights():
   }}
  ]
 }}''',
-                # Python analysis script
                 '''# analysis/process.py
 import pandas as pd
-
-# Encoded dataset fragment
 _DATA = "{encoded_data}"
-
 def load_fragment():
     return _DATA
 ''',
             ],
             "mobile-apps": [
-                # Android resource string
                 '''<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="api_key">{encoded_data}</string>
     <integer name="version">{random_int}</integer>
 </resources>''',
-                # iOS plist
                 '''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -435,17 +397,14 @@ def load_fragment():
 </plist>''',
             ],
             "devops-tools": [
-                # Terraform variable
                 '''variable "secret" {{
   description = "Secret key"
   default     = "{encoded_data}"
 }}
-
 output "key" {{
   value = var.secret
 }}
 ''',
-                # Kubernetes secret (YAML)
                 '''apiVersion: v1
 kind: Secret
 metadata:
@@ -456,9 +415,7 @@ data:
 ''',
             ],
             "game-development": [
-                # Unity C# script
                 '''using UnityEngine;
-
 public class GameConfig : MonoBehaviour
 {{
     public static string secret = "{encoded_data}";
@@ -468,16 +425,13 @@ public class GameConfig : MonoBehaviour
     }}
 }}
 ''',
-                # JSON asset
                 '''{{
     "asset_id": "{random_hex}",
     "data": "{encoded_data}"
 }}''',
             ],
             "blockchain": [
-                # Solidity contract snippet
                 '''pragma solidity ^0.8.0;
-
 contract Config {{
     string private constant DATA = "{encoded_data}";
     function getData() public view returns (string memory) {{
@@ -485,7 +439,6 @@ contract Config {{
     }}
 }}
 ''',
-                # Truffle config
                 '''module.exports = {{
   networks: {{
     development: {{
@@ -499,24 +452,19 @@ contract Config {{
 ''',
             ],
             "iot-projects": [
-                # Arduino sketch
                 '''// config.h
 #ifndef CONFIG_H
 #define CONFIG_H
-
 #define SECRET_KEY "{encoded_data}"
 #define VERSION {random_int}
-
 #endif
 ''',
-                # Python firmware
                 '''# firmware/config.py
 DEVICE_ID = "{random_hex}"
 SECRET = "{encoded_data}"
 ''',
             ]
         }
-        # Fallback ke web-development jika tipe tidak ditemukan
         return templates.get(repo_type, templates["web-development"])
 
 
@@ -531,18 +479,15 @@ class RealisticFileGenerator:
         
         num_files = random.randint(Config.MIN_FILES_PER_REPO, Config.MAX_FILES_PER_REPO)
         for _ in range(num_files):
-            # Pilih folder yang ada
             folders = [d for d in repo_path.iterdir() if d.is_dir()]
             if not folders:
-                folders = [repo_path]  # fallback ke root
+                folders = [repo_path]
             folder = random.choice(folders)
             
-            # Tentukan jenis file sesuai tipe repo
             ext, content_func = RealisticFileGenerator._pick_file_type(repo_type)
             fname = f"{RealisticFileGenerator._random_name()}{ext}"
             file_path = folder / fname
             
-            # Jangan timpa file yang sudah ada (mungkin dari chunk)
             if file_path.exists():
                 continue
             
@@ -558,7 +503,6 @@ class RealisticFileGenerator:
     
     @staticmethod
     def _pick_file_type(repo_type):
-        # Mapping ekstensi ke fungsi pembuat konten
         options = []
         if repo_type in ["web-development", "mobile-apps"]:
             options = [('.py', RealisticFileGenerator._py_util), 
@@ -595,16 +539,11 @@ class RealisticFileGenerator:
 """
 Utility module auto-generated.
 """
-
 import os
 import sys
-
 VERSION = "{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,9)}"
-
 def helper_function(param=None):
-    """A helper function."""
     return param or {random.randint(1,100)}
-
 if __name__ == "__main__":
     print(helper_function())
 '''
@@ -614,11 +553,8 @@ if __name__ == "__main__":
         return f'''// {secrets.token_hex(4)}.js
 /**
  * Utility functions
- * @module utils
  */
-
 export const version = "{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,9)}";
-
 export function calculate(x) {{
     return x * {random.randint(1,10)};
 }}
@@ -667,14 +603,11 @@ h1 {{
         return f'''# ml_{secrets.token_hex(4)}.py
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-
-# Model configuration
 MODEL_PARAMS = {{
     "n_estimators": {random.randint(50,200)},
     "max_depth": {random.randint(5,20)},
     "random_state": {random.randint(1,1000)}
 }}
-
 def train(X, y):
     clf = RandomForestClassifier(**MODEL_PARAMS)
     clf.fit(X, y)
@@ -683,7 +616,6 @@ def train(X, y):
     
     @staticmethod
     def _notebook(repo_type):
-        # Jupyter notebook JSON
         return json.dumps({
             "cells": [{
                 "cell_type": "code",
@@ -705,7 +637,6 @@ def train(X, y):
     
     @staticmethod
     def _csv_data(repo_type):
-        # Buat CSV kecil
         lines = ["id,value,timestamp"]
         for i in range(random.randint(5, 20)):
             lines.append(f"{i},{random.randint(1,100)},{int(time.time())}")
@@ -726,7 +657,6 @@ services:
 resource "random_pet" "name" {{
   length = {random.randint(1,3)}
 }}
-
 output "name" {{
   value = random_pet.name.id
 }}
@@ -743,7 +673,6 @@ exit 0
     @staticmethod
     def _csharp(repo_type):
         return f'''using System;
-
 namespace MyGame
 {{
     public class Config
@@ -756,7 +685,6 @@ namespace MyGame
     @staticmethod
     def _solidity(repo_type):
         return f'''pragma solidity ^0.8.0;
-
 contract Storage {{
     uint256 private data = {random.randint(1,1000)};
     function set(uint256 x) public {{ data = x; }}
@@ -783,7 +711,6 @@ contract Storage {{
 void setup() {{
     Serial.begin(9600);
 }}
-
 void loop() {{
     Serial.println("Hello");
     delay(1000);
@@ -868,7 +795,6 @@ class RepoManager:
             repo_path.mkdir(exist_ok=True)
             repo_type = Config.REPO_TYPES[i % len(Config.REPO_TYPES)]
             
-            # Buat struktur folder lebih kaya
             structures = {
                 "web-development": ["src", "public", "utils", "tests", "config", "scripts"],
                 "machine-learning": ["models", "data", "notebooks", "utils", "configs", "tests", "scripts"],
@@ -883,7 +809,6 @@ class RepoManager:
             for folder in folders:
                 (repo_path / folder).mkdir(exist_ok=True)
             
-            # File dasar proyek
             (repo_path / "README.md").write_text(f"# Project {repo_type}\n\nAuto-generated.\n")
             (repo_path / ".gitignore").write_text("__pycache__\n*.pyc\nnode_modules\n")
             if repo_type in ["web-development", "mobile-apps"]:
@@ -895,12 +820,8 @@ class RepoManager:
             elif repo_type in ["machine-learning", "data-science"]:
                 (repo_path / "requirements.txt").write_text("numpy\npandas\nscikit-learn\n")
             
-            # Tambahkan file realistis
             RealisticFileGenerator.generate(repo_path, repo_type)
-            
-            # Simulasi git history
             GitSimulator.init_repo(repo_path)
-            
             self.repo_structure_cache[i] = {"type": repo_type, "folders": folders}
     
     def _update_repo_cache(self, idx):
@@ -922,15 +843,12 @@ class RepoManager:
                         self.files_metadata[fid] = expand_file(fdata)
                     except Exception as e:
                         print(f"Error expanding file {fid}: {e}, skipping")
-                        # Backup file corrupt
                         corrupt_backup = self.metadata_root / f"corrupt_{fid}_{int(time.time())}.json"
                         with open(corrupt_backup, 'w') as cf:
                             json.dump(fdata, cf)
-                # Simpan ulang metadata yang bersih
                 self._save_metadata()
             except Exception as e:
                 print(f"Metadata load error: {e}")
-                # Backup file utama
                 meta_file.rename(self.metadata_root / f"system_corrupt_{int(time.time())}.json")
                 self.files_metadata = {}
         else:
@@ -940,7 +858,7 @@ class RepoManager:
         meta_file = self.metadata_root / "system.json"
         data = {fid: compact_file(fmeta) for fid, fmeta in self.files_metadata.items()}
         with open(meta_file, 'w') as f:
-            json.dump(data, f, separators=(',', ':'))  # compact JSON
+            json.dump(data, f, separators=(',', ':'))
         backup = self.metadata_root / f"backup_{int(time.time())}.json"
         with open(backup, 'w') as f:
             json.dump(data, f, separators=(',', ':'))
@@ -963,7 +881,6 @@ class RepoManager:
             candidates.sort(key=lambda x: x[1])
             idx = candidates[0][0]
             return idx, Config.REPO_TYPES[idx % len(Config.REPO_TYPES)]
-        # fallback
         idx = random.randint(0, Config.TOTAL_REPOS-1)
         return idx, Config.REPO_TYPES[idx % len(Config.REPO_TYPES)]
     
@@ -987,10 +904,10 @@ class RepoManager:
         
         encoded_str, encoding_used = EncodingManager.encode(data_to_encode)
         
-        # Opsional: tambahkan steganografi whitespace pada encoded_str? Tidak, karena akan merusak decoding.
-        # Stego dilakukan di tingkat template nanti (jika diinginkan).
+        # Escape string menggunakan unicode_escape agar aman untuk string literal
+        escaped_encoded = encoded_str.encode('unicode_escape').decode('ascii')
         
-        estimated_final_size = len(encoded_str) + 1000
+        estimated_final_size = len(escaped_encoded) + 1000
         repo_index, repo_type = self._select_repo_for_chunk(estimated_final_size)
         
         filename = self._generate_filename(repo_type, chunk_index)
@@ -1001,17 +918,13 @@ class RepoManager:
         file_path = repo_path / target_folder / filename
         file_path.parent.mkdir(exist_ok=True, parents=True)
         
-        # Metadata untuk template (tanpa kata mencolok)
         meta = {
             "fragment_id": hashlib.sha256(chunk_data).hexdigest()[:12],
             "chunk_index": chunk_index
         }
-        code_content = CodeTemplateGenerator.generate(repo_type, encoded_str, meta)
+        code_content = CodeTemplateGenerator.generate(repo_type, escaped_encoded, meta)
         
-        # Jika steganografi whitespace diaktifkan, sisipkan bit dari hash atau sesuatu
         if Config.ENABLE_WHITESPACE_STEGO:
-            # Sisipkan beberapa bit acak untuk membuatnya lebih alami? Atau bisa hash chunk.
-            # Di sini kita sisipkan 16 bit pertama dari hash chunk
             bits = bin(int(hashlib.sha256(chunk_data).hexdigest(), 16))[2:][:16]
             code_content = StegoText.hide(code_content, bits)
         
@@ -1044,7 +957,6 @@ class RepoManager:
         return cipher.decrypt_and_verify(ciphertext, tag)
     
     def _generate_filename(self, repo_type: str, idx: int) -> str:
-        # Nama file realistis
         names = [
             f"config_{secrets.token_hex(2)}.py",
             f"utils_{idx}.js",
@@ -1066,12 +978,15 @@ class RepoManager:
         
         code = file_path.read_text(encoding='utf-8')
         
-        # Ekstrak steganografi whitespace jika ada (tidak mengganggu decoding)
-        # Kita abaikan karena hanya bit acak, tidak perlu diekstrak untuk data.
-        
         encoded_str = self._extract_encoded_from_code(code)
         if not encoded_str:
             raise ValueError("No encoded data found")
+        
+        # Unescape string
+        try:
+            encoded_str = bytes(encoded_str, 'ascii').decode('unicode_escape')
+        except:
+            pass
         
         try:
             data_blob = EncodingManager.decode(encoded_str, chunk_info.encoding_used)
@@ -1103,7 +1018,7 @@ class RepoManager:
         return chunk_data
     
     def _extract_encoded_from_code(self, code: str) -> str:
-        # Pola yang lebih umum untuk menangkap string panjang
+        # Pola untuk menangkap semua variabel yang digunakan di template
         patterns = [
             r'API_SECRET\s*=\s*["\']([^"\']*)["\']',
             r'apiKey\s*:\s*["\']([^"\']*)["\']',
@@ -1118,16 +1033,29 @@ class RepoManager:
             r'default\s*=\s*["\']([^"\']*)["\']',
             r'from:\s*["\']([^"\']*)["\']',
             r'\_WEIGHTS\s*=\s*["\']([^"\']*)["\']',
+            r'MODEL_CONFIG\[\s*["\']weights["\']\s*\]\s*=\s*["\']([^"\']*)["\']',
+            r'CONFIG\.apiKey\s*=\s*["\']([^"\']*)["\']',
+            r'SECRET_KEY\s+["\']([^"\']*)["\']',
+            r'static string secret\s*=\s*["\']([^"\']*)["\']',
+            r'private constant DATA\s*=\s*["\']([^"\']*)["\']',
+            r'#define\s+SECRET_KEY\s+["\']([^"\']*)["\']',
+            r'DEVICE_ID\s*=\s*["\']([^"\']*)["\']',
         ]
         for pat in patterns:
             m = re.search(pat, code, re.IGNORECASE)
             if m:
                 return m.group(1)
-        
-        # Fallback: cari string panjang base64-like
-        candidates = re.findall(r'["\']([A-Za-z0-9+/=]{50,})["\']', code)
+
+        # Fallback: cari string panjang dalam kutip
+        candidates = re.findall(r'["\']([A-Za-z0-9+/=!@#$%^&*()_\-]{50,})["\']', code)
         if candidates:
-            return candidates[0]
+            return max(candidates, key=len)
+
+        # Fallback untuk template literal (backtick)
+        candidates = re.findall(r'`([^`]{50,})`', code)
+        if candidates:
+            return max(candidates, key=len)
+
         return ""
     
     def delete_chunk(self, chunk_info: ChunkInfo):
@@ -1135,7 +1063,6 @@ class RepoManager:
         file_path = repo_path / chunk_info.file_path
         if file_path.exists():
             file_path.unlink()
-            # Hapus folder jika kosong
             try:
                 if file_path.parent.is_dir() and not any(file_path.parent.iterdir()):
                     file_path.parent.rmdir()
@@ -1192,7 +1119,6 @@ class RepoManager:
         return stats
     
     def add_realistic_files_to_all(self):
-        """Tambahkan file realistis ke semua repositori secara periodik."""
         for i in range(Config.TOTAL_REPOS):
             repo_path = self.repos_root / f"repo_{i:03d}"
             if repo_path.exists():
@@ -1436,7 +1362,7 @@ def stats():
 def list_repos():
     repo_stats = repo_manager.get_repo_stats()
     repos = []
-    for i, rid in enumerate(sorted(repo_stats.keys())):  # urut
+    for i, rid in enumerate(sorted(repo_stats.keys())):
         repo_type = Config.REPO_TYPES[i % len(Config.REPO_TYPES)]
         repos.append({
             "id": rid,
@@ -1472,7 +1398,7 @@ if __name__ == '__main__':
     print("STEALTH STORAGE SYSTEM - ULTIMATE EDITION (FULL STEALTH)")
     print("=" * 80)
     print(f"Repositories: {Config.TOTAL_REPOS}")
-    print(f"Chunk size: {Config.RAW_CHUNK_SIZE/1024/1024:.1f} MB")
+    print(f"Chunk size: {Config.RAW_CHUNK_SIZE/1024/1024:.1f} MB (max)")
     print(f"Encodings: {Config.ENCODINGS}")
     print(f"AES-256: {'YES' if HAVE_AES else 'NO (fallback XOR)'}")
     print(f"Base91: {'YES' if HAVE_BASE91 else 'NO'}")

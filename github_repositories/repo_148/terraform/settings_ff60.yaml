@@ -1,5 +1,0 @@
-# config_648e.yaml
-version: "2.3"
-services:
-  - name: service_4
-    port: 8507

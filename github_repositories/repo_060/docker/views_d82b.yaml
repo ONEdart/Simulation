@@ -1,5 +1,0 @@
-# config_37c6.yaml
-version: "5.5"
-services:
-  - name: service_1
-    port: 3863

@@ -1,5 +1,0 @@
-# config_3ada.yaml
-version: "5.0"
-services:
-  - name: service_10
-    port: 6726

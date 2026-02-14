@@ -1,5 +1,0 @@
-# config_43f8.yaml
-version: "1.4"
-services:
-  - name: service_7
-    port: 5072

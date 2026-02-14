@@ -1,5 +1,0 @@
-# config_60a5.yaml
-version: "1.7"
-services:
-  - name: service_3
-    port: 5516

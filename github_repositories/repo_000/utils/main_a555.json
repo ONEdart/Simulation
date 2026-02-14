@@ -1,8 +1,0 @@
-{
-  "name": "config_52c03abc",
-  "version": "4.4",
-  "settings": {
-    "debug": true,
-    "port": 6761
-  }
-}

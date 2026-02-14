@@ -1,5 +1,0 @@
-# config_78e5.yaml
-version: "5.2"
-services:
-  - name: service_4
-    port: 7801

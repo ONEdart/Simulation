@@ -1,8 +1,0 @@
-{
-  "name": "config_c72af43a",
-  "version": "2.0",
-  "settings": {
-    "debug": true,
-    "port": 7379
-  }
-}

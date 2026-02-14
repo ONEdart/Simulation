@@ -1,5 +1,0 @@
-# config_5001.yaml
-version: "5.7"
-services:
-  - name: service_3
-    port: 5564

@@ -1,5 +1,0 @@
-# config_5396.yaml
-version: "1.2"
-services:
-  - name: service_4
-    port: 5512

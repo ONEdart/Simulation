@@ -1,5 +1,0 @@
-# config_aa9d.yaml
-version: "3.2"
-services:
-  - name: service_10
-    port: 8632

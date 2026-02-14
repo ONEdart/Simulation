@@ -1,5 +1,0 @@
-# config_8d0a.yaml
-version: "1.9"
-services:
-  - name: service_9
-    port: 3359

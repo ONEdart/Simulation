@@ -1,5 +1,0 @@
-# config_87ee.yaml
-version: "2.5"
-services:
-  - name: service_8
-    port: 6297

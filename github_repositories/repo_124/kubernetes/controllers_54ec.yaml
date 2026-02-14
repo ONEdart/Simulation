@@ -1,5 +1,0 @@
-# config_826b.yaml
-version: "4.3"
-services:
-  - name: service_1
-    port: 4413

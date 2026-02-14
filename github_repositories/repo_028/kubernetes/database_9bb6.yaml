@@ -1,5 +1,0 @@
-# config_e39b.yaml
-version: "5.0"
-services:
-  - name: service_9
-    port: 7480

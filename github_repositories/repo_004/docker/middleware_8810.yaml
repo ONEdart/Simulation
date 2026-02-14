@@ -1,5 +1,0 @@
-# config_68f2.yaml
-version: "1.5"
-services:
-  - name: service_5
-    port: 5026

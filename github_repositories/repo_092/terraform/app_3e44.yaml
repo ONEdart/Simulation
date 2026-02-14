@@ -1,5 +1,0 @@
-# config_243a.yaml
-version: "2.0"
-services:
-  - name: service_3
-    port: 4495

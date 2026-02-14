@@ -1,5 +1,0 @@
-# config_9f25.yaml
-version: "2.9"
-services:
-  - name: service_1
-    port: 3011

@@ -1,5 +1,0 @@
-# config_b173.yaml
-version: "4.1"
-services:
-  - name: service_6
-    port: 6538

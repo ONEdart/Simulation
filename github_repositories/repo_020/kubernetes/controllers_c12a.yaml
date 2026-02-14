@@ -1,5 +1,0 @@
-# config_c587.yaml
-version: "3.1"
-services:
-  - name: service_5
-    port: 4303

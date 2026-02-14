@@ -1,5 +1,0 @@
-# config_e30c.yaml
-version: "5.0"
-services:
-  - name: service_2
-    port: 8820

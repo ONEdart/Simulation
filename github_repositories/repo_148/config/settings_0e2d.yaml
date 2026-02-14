@@ -1,5 +1,0 @@
-# config_0739.yaml
-version: "3.0"
-services:
-  - name: service_10
-    port: 4179

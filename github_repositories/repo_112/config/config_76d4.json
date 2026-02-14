@@ -1,8 +1,0 @@
-{
-  "name": "config_80bfde96",
-  "version": "2.4",
-  "settings": {
-    "debug": true,
-    "port": 4996
-  }
-}

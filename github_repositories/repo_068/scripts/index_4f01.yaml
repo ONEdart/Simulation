@@ -1,5 +1,0 @@
-# config_b1e2.yaml
-version: "3.1"
-services:
-  - name: service_9
-    port: 8583

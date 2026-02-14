@@ -1,5 +1,0 @@
-# config_cf5b.yaml
-version: "2.8"
-services:
-  - name: service_5
-    port: 6089

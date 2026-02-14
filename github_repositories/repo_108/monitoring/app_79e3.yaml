@@ -1,5 +1,0 @@
-# config_a9c9.yaml
-version: "3.8"
-services:
-  - name: service_6
-    port: 5444

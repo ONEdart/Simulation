@@ -1,5 +1,0 @@
-# config_76a1.yaml
-version: "3.3"
-services:
-  - name: service_3
-    port: 5251
